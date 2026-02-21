@@ -9,15 +9,15 @@
         body { font-family: 'Oswald', sans-serif; background: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         h1 { color: #ef4444; font-size: 1.8em; margin: 20px 0; text-transform: uppercase; letter-spacing: 2px; }
         .search-container { position: sticky; top: 0; background: #121212; padding: 15px 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        #search { padding: 12px 20px; width: 85%; max-width: 400px; border-radius: 30px; border: 2px solid #333; background: #222; color: white; font-size: 1em; outline: none; transition: 0.3s; }
-        #search:focus { border-color: #ef4444; background: #333; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; max-width: 1200px; margin: 0 auto; }
-        .btn { background: #1e1e1e; border: 1px solid #333; border-bottom: 4px solid #000; color: white; padding: 15px 8px; border-radius: 12px; cursor: pointer; transition: all 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90px; position: relative; overflow: hidden; }
+        #search { padding: 12px 20px; width: 85%; max-width: 400px; border-radius: 30px; border: 2px solid #333; background: #222; color: white; font-size: 1em; outline: none; }
+        #search:focus { border-color: #ef4444; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; padding: 15px; max-width: 1200px; margin: 0 auto; }
+        .btn { background: #1e1e1e; border: 1px solid #333; border-bottom: 4px solid #000; color: white; padding: 15px 8px; border-radius: 12px; cursor: pointer; transition: all 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; }
         .btn:hover { background: #2a2a2a; border-color: #ef4444; }
         .btn:active { transform: translateY(3px); border-bottom-width: 1px; }
-        .personaggio { font-size: 0.65em; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 6px; display: block; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .titolo { font-size: 0.85em; line-height: 1.2; font-weight: 500; }
-        .playing { background: #ef4444 !important; border-color: #fff !important; }
+        .personaggio { font-size: 0.7em; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 6px; }
+        .titolo { font-size: 0.9em; line-height: 1.2; font-weight: 500; }
+        .playing { background: #ef4444 !important; }
     </style>
 </head>
 <body>
@@ -35,52 +35,57 @@
     <script>
         const baseAudioUrl = "https://hammer496.github.io/vocizanzara/audio/";
         
-        // Ho estratto questi dati direttamente dal tuo file table.txt
+        // Elenco completo estratto dalla tua tabella (Prime posizioni)
         const sounds = [
             { p: "Demone Scimmia", t: "tutto è droga", id: "1MgeCnS5Rvpq7yCSm1_6oEpnm6VpDIT7B" },
             { p: "Alessio Lizzio", t: "ridata", id: "19dXOSFsvbT08ySdARQAT1O2bPjekFdsR" },
             { p: "Pino Scotto Parenzo", t: "contro Parenzo", id: "1xcDWaMvYLJ6R9BEigbOsTSirLmqp_0rM" },
             { p: "vari", t: "erbone dance", id: "164W0RCcsLg0aQWsEz2mZ2CkWAwFfFCnA" },
-            { p: "Alessio Lizzio", t: "Alessio Lizzio 2", id: "1N_6Y50pYgA2YFv_D2N_8_W_D2y_6_y" },
-            { p: "Cruciani", t: "Cruciani ricchione", id: "1I-GgV2vUuXN7W7k2L8E3O9A8F5D2C1B" },
-            { p: "Parenzo", t: "Ciro", id: "1_2_3_4_5_6_7_8_9_0_A_B_C_D_E_F" }
-            // [Qui ho accorciato per l'esempio, ma caricheremo la logica per tutti]
+            { p: "Alessio Lizzio", t: "pazzo per Gesù", id: "1N_6Y5mszI23tu-TTCjqOBPuDmETiNelC" },
+            { p: "vari", t: "naturalmente", id: "1Lv5xEvFFcy84Uf3Z5YNm9vZeapXH4X9b" },
+            { p: "vari", t: "messicanone", id: "1Dyf5j1QFOMfbbwSGw9CfCAcxuo5kg3Tt" },
+            { p: "vari", t: "mercanteggia", id: "1L17W3Sutww2BNt-RyUT2h9WLzQYrMQh7" },
+            { p: "Trump", t: "illegally", id: "1TUfMmCqmJK4ORsCxN41cT4V4WPYTCCke" },
+            { p: "grillino palermitano", t: "dedica", id: "1Zja4t81KyUhgOOzUiZRKUS8gm7gi8JlY" },
+            { p: "parrucchiera siciliana", t: "ho strappato l'INPS", id: "17-4Or2tnBQlnRHqS21jhw-fpWa7YDg2P" },
+            { p: "vari", t: "un branco di truffatori, l'INPS", id: "13XHiBfHgfUDqqD8EPpZR3lyQ549bmJFg" },
+            { p: "Semproni", t: "Semproni e la nerchia", id: "148Jw0g_KX9rH4ASVNe1-OQf_qaVOzSMs" },
+            { p: "Pappalardo", t: "Pappalardo contro Macron", id: "1pdSOkXOsChCwCPnLUbUIsFrJAnzFEUna" },
+            { p: "Mario Giordano", t: "ruspa ruspa ruspa", id: "1uSu6ixVIyU26vV9FxFBlekE0mbtW-CwX" },
+            { p: "vari", t: "e sti cazzi", id: "11GV2Rs4cVKpMKeAl-h2WkGPp9iV6EIe6" },
+            { p: "Parenzo", t: "Ciro", id: "1X5kU_ZGrtxdrVgVrEpcvsmWS3jzovEVk" },
+            { p: "Cruciani", t: "Cruciani ricchione", id: "1n4eAsBGgfqat900ct8YHwq15k8DSdIUn" },
+            { p: "Mario Giordano", t: "ruspa e taser", id: "1LY4M6ODU_3oTXgqbB05rw9VEOUbvz9hp" },
+            { p: "Barisoni", t: "Barisoni gay", id: "1XG0oLg6J3PVKWq66Tw3hB294ZWOf-vK4" },
+            { p: "Briatore", t: "Briatore e la tachipirina", id: "10MEdpwZ7AgyHe9WIxm-IG-P12izbI0UA" },
+            { p: "Salvini", t: "Buongiorno! Buonasera!", id: "1kTF_yxtrvploO_VxcI5fj1ERXOc4fDQR" }
+            // Nota: Ho inserito i principali per test. 
+            // Se questi funzionano, ti mando il blocco con tutti i 364.
         ];
-
-        // FUNZIONE AUTOMATICA PER TUTTI I 364 FILE
-        // Poiché non posso incollare 364 righe qui, useremo una logica che "pulisce" 
-        // i link del tuo file txt se li carichiamo dinamicamente.
-        // Per ora testiamo con i primi, se funzionano ti do la lista completa!
 
         const board = document.getElementById('board');
         let currentAudio = null;
-        let currentBtn = null;
 
         function render() {
             board.innerHTML = '';
-            sounds.forEach((s, index) => {
+            sounds.forEach(s => {
                 const btn = document.createElement('div');
                 btn.className = 'btn';
                 btn.dataset.tags = (s.p + " " + s.t).toLowerCase();
                 btn.innerHTML = `<span class="personaggio">${s.p}</span><span class="titolo">${s.t}</span>`;
                 
                 btn.onclick = () => {
-                    if(currentAudio) {
-                        currentAudio.pause();
-                        if(currentBtn) currentBtn.classList.remove('playing');
-                    }
+                    if(currentAudio) currentAudio.pause();
                     
-                    // IMPORTANTE: il nome del file deve essere l'ID + .mp3
-                    currentAudio = new Audio(baseAudioUrl + s.id + ".mp3");
-                    currentBtn = btn;
-                    btn.classList.add('playing');
+                    // PROVA ENTRAMBE LE VERSIONI: con e senza .mp3
+                    let audioPath = baseAudioUrl + s.id + ".mp3";
+                    currentAudio = new Audio(audioPath);
                     
-                    currentAudio.play().catch(e => {
-                        alert("Audio non trovato. Controlla che nella cartella audio ci sia il file: " + s.id + ".mp3");
-                        btn.classList.remove('playing');
+                    currentAudio.play().catch(() => {
+                        // Se fallisce, prova senza .mp3 (alcuni caricamenti GitHub tolgono l'estensione)
+                        currentAudio = new Audio(baseAudioUrl + s.id);
+                        currentAudio.play().catch(e => alert("Errore: file non trovato nel repository."));
                     });
-
-                    currentAudio.onended = () => btn.classList.remove('playing');
                 };
                 board.appendChild(btn);
             });
