@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voci Zanzara 2024 - Hammer Edition</title>
+    <title>Voci Zanzara 2024</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Oswald', sans-serif; background: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         h1 { color: #ef4444; font-size: 1.8em; margin: 20px 0; text-transform: uppercase; }
         .search-container { position: sticky; top: 0; background: #121212; padding: 15px 0; z-index: 100; }
         #search { padding: 12px 20px; width: 85%; max-width: 400px; border-radius: 30px; border: 2px solid #333; background: #222; color: white; outline: none; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; max-width: 1200px; margin: 0 auto; }
-        .btn { background: #1e1e1e; border: 1px solid #333; border-bottom: 4px solid #000; color: white; padding: 10px; border-radius: 12px; cursor: pointer; min-height: 95px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.1s; }
-        .btn:active { transform: translateY(3px); border-bottom-width: 1px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 10px; padding: 15px; }
+        .btn { background: #1e1e1e; border: 1px solid #333; border-bottom: 4px solid #000; color: white; padding: 10px; border-radius: 12px; cursor: pointer; min-height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .btn:active { transform: translateY(2px); border-bottom-width: 1px; }
         .personaggio { font-size: 0.65em; text-transform: uppercase; color: #ef4444; font-weight: bold; }
         .titolo { font-size: 0.85em; line-height: 1.2; margin-top: 5px; }
         .playing { background: #ef4444 !important; }
@@ -22,60 +22,47 @@
 
     <h1>VOCI ZANZARA 2024</h1>
     <div class="search-container">
-        <input type="text" id="search" placeholder="Cerca clip o personaggio..." onkeyup="filter()">
+        <input type="text" id="search" placeholder="Cerca clip..." onkeyup="filter()">
     </div>
     <div class="grid" id="board"></div>
 
     <script>
         const audioFolder = "audio/";
         
-        // MAPPATURA MANUALE 1:1 (Basata sui tuoi file lista.txt e table.txt)
+        // MAPPATURA MANUALE (Questi funzionano o li sistemeremo poco a poco)
         const sounds = [
             {p: "Demone Scimmia", t: "tutto è droga", f: "tutto_e_droga.mp3"},
-            {p: "Alessio Lizzio", t: "ridata", f: "ahahahah.mp3"}, // Corretto su quella lunga
             {p: "Pino Scotto", t: "contro Parenzo", f: "Pino_Scotto.mp3"},
-            {p: "vari", t: "erbone dance", f: "canzone_rap.mp3"},
             {p: "Alessio Lizzio", t: "pazzo per Gesù", f: "pazzo_per_gesu.mp3"},
-            {p: "vari", t: "messicanone", f: "messicanone.mp3"},
             {p: "Trump", t: "illegally", f: "50cent_Trump.mp3"},
-            {p: "Semproni", t: "Semproni e la nerchia", f: "Semproni.mp3"},
-            {p: "Pappalardo", t: "contro Macron", f: "Pappalardo_vs_Macron.mp3"},
             {p: "Mario Giordano", t: "ruspa ruspa ruspa", f: "verbo_ruspare.mp3"},
-            {p: "Parenzo", t: "Ciro", f: "ciro.mp3"},
-            {p: "Mario Giordano", t: "verbo ruspare", f: "verbo_ruspare.mp3"},
-            {p: "Richard Benson", t: "chi caccia i soldi", f: "cashcashcash.mp3"},
-            {p: "Valentina Nappi", t: "loro non credono", f: "valentina_nappi_loro.mp3"},
-            {p: "Spatalino", t: "è novità", f: "Spatalino_novita.mp3"},
-            {p: "Bugo Morgan", t: "Bugo e Morgan", f: "Bugo_Morgan.mp3"},
-            {p: "Cruciani", t: "Cruciani vs Mario", f: "Cruciani_vs_Mario.mp3"},
             {p: "Barisoni", t: "Barisoni gay", f: "Barisoni_gay.mp3"},
             {p: "Briatore", t: "tachipirina", f: "Briatore_tachipirina.mp3"},
-            {p: "Mauro da Mantova", t: "Donazione Mauro", f: "Donazione_Mauro.mp3"},
-            {p: "Efe Bal", t: "mal di gola", f: "Ebbro.mp3"},
-            {p: "Richard Benson", t: "Pippo Baudo", f: "Benson_Pippo_Baudo.mp3"},
-            {p: "Richard Benson", t: "la telefonata", f: "Benson_telefonata.mp3"},
+            {p: "Valentina Nappi", t: "loro non credono", f: "valentina_nappi_loro.mp3"},
+            {p: "Pappalardo", t: "vs Macron", f: "Pappalardo_vs_Macron.mp3"},
             {p: "Salvini", t: "Buongiorno Buonasera", f: "buongiornobuonasera.mp3"},
-            {p: "Carisio", t: "Casello di Carisio", f: "Carisio.mp3"},
-            {p: "Cruciani", t: "non si lava", f: "Cruciani_non_si_lava.mp3"},
+            {p: "Carisio", t: "Casello Carisio", f: "Carisio.mp3"},
+            {p: "Richard Benson", t: "cash cash cash", f: "cashcashcash.mp3"},
+            {p: "Semproni", t: "Semproni e la nerchia", f: "Semproni.mp3"}, // Controlla se il file si chiama Semproni.mp3 o Semproni_e_la_nerchia.mp3
             {p: "Luttwak", t: "Urlo Luttwak", f: "urlare_luttwak.mp3"}
-            // ... ne mancano altri, ma questi sono quelli sicuri al 100%
         ];
 
         let currentAudio = null;
-        let currentBtn = null;
 
         function playSound(file, btn) {
-            if (currentAudio) {
-                currentAudio.pause();
-                if (currentBtn) currentBtn.classList.remove('playing');
-            }
-            currentAudio = new Audio(audioFolder + file);
+            if (currentAudio) currentAudio.pause();
+            
+            const audioPath = audioFolder + file;
+            currentAudio = new Audio(audioPath);
+            
             currentAudio.play().then(() => {
+                document.querySelectorAll('.btn').forEach(b => b.classList.remove('playing'));
                 btn.classList.add('playing');
-                currentBtn = btn;
-            }).catch(() => {
-                console.log("Errore caricamento: " + file);
+            }).catch(e => {
+                console.error("ERRORE: Non trovo il file", file);
+                alert("Il file '" + file + "' non risponde. Potrebbe essere nominato diversamente su GitHub.");
             });
+            
             currentAudio.onended = () => btn.classList.remove('playing');
         }
 
