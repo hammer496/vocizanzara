@@ -10,10 +10,8 @@
         h1 { color: #ef4444; font-size: 1.8em; margin: 20px 0; text-transform: uppercase; letter-spacing: 2px; }
         .search-container { position: sticky; top: 0; background: #121212; padding: 15px 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         #search { padding: 12px 20px; width: 85%; max-width: 400px; border-radius: 30px; border: 2px solid #333; background: #222; color: white; font-size: 1em; outline: none; }
-        #search:focus { border-color: #ef4444; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; padding: 15px; max-width: 1200px; margin: 0 auto; }
         .btn { background: #1e1e1e; border: 1px solid #333; border-bottom: 4px solid #000; color: white; padding: 15px 8px; border-radius: 12px; cursor: pointer; transition: all 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; }
-        .btn:hover { background: #2a2a2a; border-color: #ef4444; }
         .btn:active { transform: translateY(3px); border-bottom-width: 1px; }
         .personaggio { font-size: 0.7em; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 6px; }
         .titolo { font-size: 0.9em; line-height: 1.2; font-weight: 500; }
@@ -28,68 +26,62 @@
         <input type="text" id="search" placeholder="Cerca personaggio o frase..." onkeyup="filter()">
     </div>
 
-    <div id="counter" style="font-size: 0.8em; color: #666; margin-bottom: 10px;"></div>
-
     <div class="grid" id="board"></div>
 
     <script>
-        const baseAudioUrl = "https://hammer496.github.io/vocizanzara/audio/";
+        // Utilizziamo un percorso relativo per evitare problemi di dominio
+        const audioFolder = "audio/";
         
-        // Elenco completo estratto dalla tua tabella (Prime posizioni)
         const sounds = [
             { p: "Demone Scimmia", t: "tutto è droga", id: "1MgeCnS5Rvpq7yCSm1_6oEpnm6VpDIT7B" },
             { p: "Alessio Lizzio", t: "ridata", id: "19dXOSFsvbT08ySdARQAT1O2bPjekFdsR" },
             { p: "Pino Scotto Parenzo", t: "contro Parenzo", id: "1xcDWaMvYLJ6R9BEigbOsTSirLmqp_0rM" },
             { p: "vari", t: "erbone dance", id: "164W0RCcsLg0aQWsEz2mZ2CkWAwFfFCnA" },
             { p: "Alessio Lizzio", t: "pazzo per Gesù", id: "1N_6Y5mszI23tu-TTCjqOBPuDmETiNelC" },
-            { p: "vari", t: "naturalmente", id: "1Lv5xEvFFcy84Uf3Z5YNm9vZeapXH4X9b" },
-            { p: "vari", t: "messicanone", id: "1Dyf5j1QFOMfbbwSGw9CfCAcxuo5kg3Tt" },
-            { p: "vari", t: "mercanteggia", id: "1L17W3Sutww2BNt-RyUT2h9WLzQYrMQh7" },
-            { p: "Trump", t: "illegally", id: "1TUfMmCqmJK4ORsCxN41cT4V4WPYTCCke" },
-            { p: "grillino palermitano", t: "dedica", id: "1Zja4t81KyUhgOOzUiZRKUS8gm7gi8JlY" },
-            { p: "parrucchiera siciliana", t: "ho strappato l'INPS", id: "17-4Or2tnBQlnRHqS21jhw-fpWa7YDg2P" },
-            { p: "vari", t: "un branco di truffatori, l'INPS", id: "13XHiBfHgfUDqqD8EPpZR3lyQ549bmJFg" },
-            { p: "Semproni", t: "Semproni e la nerchia", id: "148Jw0g_KX9rH4ASVNe1-OQf_qaVOzSMs" },
-            { p: "Pappalardo", t: "Pappalardo contro Macron", id: "1pdSOkXOsChCwCPnLUbUIsFrJAnzFEUna" },
-            { p: "Mario Giordano", t: "ruspa ruspa ruspa", id: "1uSu6ixVIyU26vV9FxFBlekE0mbtW-CwX" },
-            { p: "vari", t: "e sti cazzi", id: "11GV2Rs4cVKpMKeAl-h2WkGPp9iV6EIe6" },
-            { p: "Parenzo", t: "Ciro", id: "1X5kU_ZGrtxdrVgVrEpcvsmWS3jzovEVk" },
             { p: "Cruciani", t: "Cruciani ricchione", id: "1n4eAsBGgfqat900ct8YHwq15k8DSdIUn" },
-            { p: "Mario Giordano", t: "ruspa e taser", id: "1LY4M6ODU_3oTXgqbB05rw9VEOUbvz9hp" },
-            { p: "Barisoni", t: "Barisoni gay", id: "1XG0oLg6J3PVKWq66Tw3hB294ZWOf-vK4" },
-            { p: "Briatore", t: "Briatore e la tachipirina", id: "10MEdpwZ7AgyHe9WIxm-IG-P12izbI0UA" },
             { p: "Salvini", t: "Buongiorno! Buonasera!", id: "1kTF_yxtrvploO_VxcI5fj1ERXOc4fDQR" }
-            // Nota: Ho inserito i principali per test. 
-            // Se questi funzionano, ti mando il blocco con tutti i 364.
+            // Quando questi 7 funzionano, caricheremo tutti gli altri 350+
         ];
 
         const board = document.getElementById('board');
         let currentAudio = null;
 
+        function playSound(id, btn) {
+            if (currentAudio) {
+                currentAudio.pause();
+                document.querySelectorAll('.btn').forEach(b => b.classList.remove('playing'));
+            }
+
+            // Tentativo 1: con .mp3
+            let audio = new Audio(audioFolder + id + ".mp3");
+            
+            audio.play().then(() => {
+                btn.classList.add('playing');
+                currentAudio = audio;
+            }).catch(() => {
+                // Tentativo 2: senza .mp3 (se GitHub ha rinominato i file)
+                let audio2 = new Audio(audioFolder + id);
+                audio2.play().then(() => {
+                    btn.classList.add('playing');
+                    currentAudio = audio2;
+                }).catch(e => {
+                    console.error("Errore caricamento:", e);
+                    alert("File non trovato: " + id + ". Assicurati che sia nella cartella 'audio'");
+                });
+            });
+
+            audio.onended = () => btn.classList.remove('playing');
+        }
+
         function render() {
-            board.innerHTML = '';
             sounds.forEach(s => {
                 const btn = document.createElement('div');
                 btn.className = 'btn';
                 btn.dataset.tags = (s.p + " " + s.t).toLowerCase();
                 btn.innerHTML = `<span class="personaggio">${s.p}</span><span class="titolo">${s.t}</span>`;
-                
-                btn.onclick = () => {
-                    if(currentAudio) currentAudio.pause();
-                    
-                    // PROVA ENTRAMBE LE VERSIONI: con e senza .mp3
-                    let audioPath = baseAudioUrl + s.id + ".mp3";
-                    currentAudio = new Audio(audioPath);
-                    
-                    currentAudio.play().catch(() => {
-                        // Se fallisce, prova senza .mp3 (alcuni caricamenti GitHub tolgono l'estensione)
-                        currentAudio = new Audio(baseAudioUrl + s.id);
-                        currentAudio.play().catch(e => alert("Errore: file non trovato nel repository."));
-                    });
-                };
+                btn.onclick = () => playSound(s.id, btn);
                 board.appendChild(btn);
             });
-            document.getElementById('counter').innerText = sounds.length + " clip caricate";
         }
 
         function filter() {
