@@ -9,12 +9,13 @@
         body { font-family: 'Oswald', sans-serif; background: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         h1 { color: #ef4444; font-size: 1.8em; margin: 20px 0; text-transform: uppercase; letter-spacing: 2px; }
         .search-container { position: sticky; top: 0; background: #121212; padding: 15px 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        #search { padding: 12px 20px; width: 85%; max-width: 400px; border-radius: 30px; border: 2px solid #333; background: #222; color: white; font-size: 1em; outline: none; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; padding: 15px; max-width: 1200px; margin: 0 auto; }
-        .btn { background: #1e1e1e; border: 1px solid #333; border-bottom: 4px solid #000; color: white; padding: 15px 8px; border-radius: 12px; cursor: pointer; transition: all 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; }
+        #search { padding: 12px 20px; width: 85%; max-width: 400px; border-radius: 30px; border: 2px solid #333; background: #222; color: white; font-size: 1em; outline: none; transition: 0.3s; }
+        #search:focus { border-color: #ef4444; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; max-width: 1200px; margin: 0 auto; }
+        .btn { background: #1e1e1e; border: 1px solid #333; border-bottom: 4px solid #000; color: white; padding: 15px 8px; border-radius: 12px; cursor: pointer; transition: all 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90px; }
         .btn:active { transform: translateY(3px); border-bottom-width: 1px; }
-        .personaggio { font-size: 0.7em; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 6px; }
-        .titolo { font-size: 0.9em; line-height: 1.2; font-weight: 500; }
+        .personaggio { font-size: 0.65em; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 6px; }
+        .titolo { font-size: 0.85em; line-height: 1.2; font-weight: 500; }
         .playing { background: #ef4444 !important; }
     </style>
 </head>
@@ -29,54 +30,57 @@
     <div class="grid" id="board"></div>
 
     <script>
-        // Utilizziamo un percorso relativo per evitare problemi di dominio
         const audioFolder = "audio/";
         
+        // Esempio con i tuoi primi file
         const sounds = [
-            { p: "Demone Scimmia", t: "tutto è droga", id: "1MgeCnS5Rvpq7yCSm1_6oEpnm6VpDIT7B" },
-            { p: "Alessio Lizzio", t: "ridata", id: "19dXOSFsvbT08ySdARQAT1O2bPjekFdsR" },
-            { p: "Pino Scotto Parenzo", t: "contro Parenzo", id: "1xcDWaMvYLJ6R9BEigbOsTSirLmqp_0rM" },
-            { p: "vari", t: "erbone dance", id: "164W0RCcsLg0aQWsEz2mZ2CkWAwFfFCnA" },
-            { p: "Alessio Lizzio", t: "pazzo per Gesù", id: "1N_6Y5mszI23tu-TTCjqOBPuDmETiNelC" },
-            { p: "Cruciani", t: "Cruciani ricchione", id: "1n4eAsBGgfqat900ct8YHwq15k8DSdIUn" },
-            { p: "Salvini", t: "Buongiorno! Buonasera!", id: "1kTF_yxtrvploO_VxcI5fj1ERXOc4fDQR" }
-            // Quando questi 7 funzionano, caricheremo tutti gli altri 350+
+            { p: "Demone Scimmia", t: "tutto è droga" },
+            { p: "Alessio Lizzio", t: "ridata" },
+            { p: "Pino Scotto Parenzo", t: "contro Parenzo" },
+            { p: "vari", t: "erbone dance" }
         ];
 
-        const board = document.getElementById('board');
         let currentAudio = null;
 
-        function playSound(id, btn) {
-            if (currentAudio) {
-                currentAudio.pause();
-                document.querySelectorAll('.btn').forEach(b => b.classList.remove('playing'));
-            }
+        function playSound(title, btn) {
+            if (currentAudio) currentAudio.pause();
+            
+            // TRUCCO: Trasformiamo "tutto è droga" in "tutto_e_droga.mp3"
+            // Sostituiamo spazi, accentate e caratteri strani
+            let fileName = title.toLowerCase()
+                .replace(/ /g, "_")
+                .replace(/è/g, "e")
+                .replace(/é/g, "e")
+                .replace(/ò/g, "o")
+                .replace(/à/g, "a")
+                .replace(/ù/g, "u")
+                .replace(/ì/g, "i")
+                .replace(/[^\w]/g, "_") // Rimuove punteggiatura residua
+                .replace(/__+/g, "_")  // Toglie doppi underscore
+                + ".mp3";
 
-            // USIAMO IL LINK DIRETTO ASSOLUTO
-            // Sostituisci hammer496 con il tuo username se diverso
-            const urlCompleto = "https://hammer496.github.io/vocizanzara/audio/" + id + ".mp3";
-            
-            console.log("Tentativo di caricamento:", urlCompleto);
-            
-            currentAudio = new Audio(urlCompleto);
-            
+            const url = audioFolder + fileName;
+            console.log("Provo a suonare:", url);
+
+            currentAudio = new Audio(url);
             currentAudio.play().then(() => {
+                document.querySelectorAll('.btn').forEach(b => b.classList.remove('playing'));
                 btn.classList.add('playing');
             }).catch(e => {
-                console.error("Errore:", e);
-                alert("Ancora 404. Per favore, controlla che su GitHub il file si chiami esattamente: " + id + ".mp3");
+                alert("Errore! Non trovo il file: " + fileName + "\nAssicurati che sia nella cartella audio.");
             });
-
+            
             currentAudio.onended = () => btn.classList.remove('playing');
         }
 
         function render() {
+            const board = document.getElementById('board');
             sounds.forEach(s => {
                 const btn = document.createElement('div');
                 btn.className = 'btn';
                 btn.dataset.tags = (s.p + " " + s.t).toLowerCase();
                 btn.innerHTML = `<span class="personaggio">${s.p}</span><span class="titolo">${s.t}</span>`;
-                btn.onclick = () => playSound(s.id, btn);
+                btn.onclick = () => playSound(s.t, btn);
                 board.appendChild(btn);
             });
         }
