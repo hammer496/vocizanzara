@@ -52,25 +52,22 @@
                 document.querySelectorAll('.btn').forEach(b => b.classList.remove('playing'));
             }
 
-            // Tentativo 1: con .mp3
-            let audio = new Audio(audioFolder + id + ".mp3");
+            // USIAMO IL LINK DIRETTO ASSOLUTO
+            // Sostituisci hammer496 con il tuo username se diverso
+            const urlCompleto = "https://hammer496.github.io/vocizanzara/audio/" + id + ".mp3";
             
-            audio.play().then(() => {
+            console.log("Tentativo di caricamento:", urlCompleto);
+            
+            currentAudio = new Audio(urlCompleto);
+            
+            currentAudio.play().then(() => {
                 btn.classList.add('playing');
-                currentAudio = audio;
-            }).catch(() => {
-                // Tentativo 2: senza .mp3 (se GitHub ha rinominato i file)
-                let audio2 = new Audio(audioFolder + id);
-                audio2.play().then(() => {
-                    btn.classList.add('playing');
-                    currentAudio = audio2;
-                }).catch(e => {
-                    console.error("Errore caricamento:", e);
-                    alert("File non trovato: " + id + ". Assicurati che sia nella cartella 'audio'");
-                });
+            }).catch(e => {
+                console.error("Errore:", e);
+                alert("Ancora 404. Per favore, controlla che su GitHub il file si chiami esattamente: " + id + ".mp3");
             });
 
-            audio.onended = () => btn.classList.remove('playing');
+            currentAudio.onended = () => btn.classList.remove('playing');
         }
 
         function render() {
