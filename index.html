@@ -4,124 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>voci da La Zanzara</title>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f4f4; padding-bottom: 140px; }
-        h1 { text-align: center; color: #333; font-weight: bold; margin-bottom: 30px; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #121212; color: white; padding: 20px; padding-bottom: 160px; margin: 0; }
+        h1 { text-align: center; color: #ff4757; text-transform: none; margin-bottom: 10px; }
         
-        /* Bottone Play */
-        .play-btn { background-color: #d32f2f; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
-        .play-btn:hover { background-color: #b71c1c; transform: scale(1.02); }
+        /* Barra di ricerca */
+        .search-container { max-width: 800px; margin: 0 auto 30px auto; text-align: center; }
+        #searchInput { width: 100%; padding: 15px; border-radius: 30px; border: none; font-size: 18px; outline: none; background: #2f3542; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        /* Player fisso in basso */
-        #player-fixed {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #212121;
-            padding: 20px;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: white;
-            z-index: 9999;
-        }
-        audio { width: 80%; max-width: 600px; margin-top: 10px; filter: invert(100%); }
-        #track-title { font-size: 16px; color: #ffeb3b; font-weight: bold; text-align: center; }
+        /* Griglia a Scacchiera */
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; max-width: 1200px; margin: auto; }
+        
+        .audio-card { background: #2f3542; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: 0.3s; border-bottom: 4px solid #ff4757; display: flex; flex-direction: column; justify-content: space-between; min-height: 100px; }
+        .audio-card:hover { transform: translateY(-5px); background: #3e4452; }
+        .audio-card.hidden { display: none; }
+        
+        .tipo { font-size: 10px; text-transform: uppercase; color: #ff6b81; margin-bottom: 5px; font-weight: bold; }
+        .titolo { font-size: 14px; font-weight: 500; line-height: 1.2; }
 
-        /* Tabella */
-        table.dataTable thead th { background-color: #333; color: white; }
-        .dataTables_wrapper .dataTables_filter input { padding: 8px; border-radius: 5px; border: 1px solid #ccc; width: 200px; margin-bottom: 10px; }
+        /* Player fisso */
+        #player-fixed { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e1e1e; padding: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; z-index: 9999; }
+        #track-display { font-size: 16px; color: #ffa502; margin-bottom: 10px; font-weight: bold; text-align: center; }
+        audio { width: 90%; max-width: 800px; height: 50px; }
     </style>
 </head>
 <body>
 
     <h1>voci da La Zanzara</h1>
 
-    <div class="container">
-        <table id="zanzaraTable" class="display" style="width:100%">
-            <thead>
-                <tr>
-                    <th>TIPO</th>
-                    <th>TITOLO</th>
-                    <th>ASCOLTA</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                </tbody>
-        </table>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Cerca un audio o un personaggio (es. Parenzo)..." onkeyup="filterAudio()">
     </div>
+
+    <div class="grid-container" id="audioGrid">
+        </div>
 
     <div id="player-fixed">
-        <div id="track-title">Seleziona un audio dalla lista</div>
-        <audio id="audioPlayer" controls>
-            <source src="" type="audio/mpeg">
-        </audio>
+        <div id="track-display">Scegli un audio per iniziare</div>
+        <audio id="mainPlayer" controls></audio>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
     <script>
-        // Configurazione Repository GitHub
-        const GITHUB_BASE = "https://hammer496.github.io/vocizanzara/audio/";
+        const GITHUB_URL = "https://hammer496.github.io/vocizanzara/audio/";
 
-        // Database incrociato: Stele di Rosetta + Dati originali
-        const audioData = [
-            { tipo: "Demone Scimmia", titolo: "tutto è droga", file: "tutto_e_droga.mp3" },
-            { tipo: "Alessio Lizzio ?", titolo: "ridata", file: "ridata.mp3" },
-            { tipo: "Pino Scotto Parenzo", titolo: "contro Parenzo", file: "Pino_Scotto.mp3" },
-            { tipo: "vari", titolo: "erbone dance", file: "erbone_dance.mp3" },
-            { tipo: "Alessio Lizzio ?", titolo: "pazzo per gesù", file: "pazzo_per_gesu.mp3" },
-            { tipo: "Donato da Varese", titolo: "naturalmente", file: "naturalmente.mp3" },
-            { tipo: "Donato da Varese", titolo: "messicanone", file: "messicanone.mp3" },
-            { tipo: "Donato da Varese", titolo: "mercanteggia", file: "mercanteggia.mp3" },
-            { tipo: "Parenzo", titolo: "e poi paga sempre Pantalone", file: "paga_pantalone.mp3" },
-            { tipo: "Filippo Champagne", titolo: "amico mio", file: "amico_mio.mp3" },
-            { tipo: "vari", titolo: "bambambam", file: "bambambam.mp3" },
-            { tipo: "Cruciani", titolo: "oh calmatevi", file: "oh_calmatevi.mp3" },
-            { tipo: "Nevio lo stirato", titolo: "dai maghi", file: "dai_maghi.mp3" },
-            { tipo: "varie", titolo: "un pochettino di misto dai", file: "un_pochettino_di_misto_dai.mp3" },
-            { tipo: "Parenzo", titolo: "starnuto", file: "starnuto.mp3" },
-            { tipo: "Parenzo", titolo: "caro Matteo io ti sono vicino", file: "caro_matteo_io_ti_sono_vicino.mp3" },
-            { tipo: "Parenzo Cruciani", titolo: "Francia o Spagna purché se magna", file: "francia_o_spagna_purche_se_magna.mp3" }
+        // DATABASE COMPLETO (Incrocio tra rosetta.txt e lista_finale_nomi.txt)
+        const audioList = [
+            { t: "Demone Scimmia", n: "tutto è droga", f: "tutto_e_droga.mp3" },
+            { t: "Alessio Lizzio ?", n: "ridata", f: "ridata.mp3" },
+            { t: "Pino Scotto Parenzo", n: "contro Parenzo", f: "Pino_Scotto.mp3" },
+            { t: "vari", n: "erbone dance", f: "erbone_dance.mp3" },
+            { t: "Alessio Lizzio ?", n: "pazzo per gesù", f: "pazzo_per_gesu.mp3" },
+            { t: "Donato da Varese", n: "naturalmente", f: "naturalmente.mp3" },
+            { t: "Donato da Varese", n: "messicanone", f: "messicanone.mp3" },
+            { t: "Donato da Varese", n: "mercanteggia", f: "mercanteggia.mp3" },
+            { t: "Parenzo", n: "paga sempre Pantalone", f: "paga_pantalone.mp3" },
+            { t: "Filippo Champagne", n: "amico mio", f: "amico_mio.mp3" },
+            { t: "vari", n: "bambambam", f: "bambambam.mp3" },
+            { t: "Cruciani", n: "oh calmatevi", f: "oh_calmatevi.mp3" },
+            { t: "Nevio lo stirato", n: "dai maghi", f: "dai_maghi.mp3" },
+            { t: "Parenzo", n: "starnuto", f: "starnuto.mp3" },
+            { t: "varie", n: "un pochettino di misto dai", f: "un_pochettino_di_misto_dai.mp3" },
+            { t: "Parenzo", n: "caro Matteo io ti sono vicino", f: "caro_matteo_io_ti_sono_vicino.mp3" },
+            { t: "Parenzo Cruciani", n: "Francia o Spagna purché se magna", f: "francia_o_spagna_purche_se_magna.mp3" },
+            { t: "Donato da Varese", n: "bravo complimenti", f: "bravo_complimenti.mp3" },
+            { t: "Donato da Varese", n: "bel messaggio", f: "bel_messaggio.mp3" },
+            { t: "Parenzo", n: "perché no", f: "perche_no.mp3" },
+            { t: "Parenzo", n: "la verità", f: "la_verita.mp3" },
+            { t: "Parenzo", n: "ma che stiamo dicendo", f: "ma_che_stiamo_dicendo.mp3" },
+            { t: "Parenzo", n: "non me ne frega niente", f: "non_me_ne_frega_niente.mp3" },
+            { t: "Parenzo", n: "vergognatevi", f: "vergognatevi.mp3" },
+            { t: "Parenzo", n: "lei è un miserabile", f: "lei_e_un_miserabile.mp3" },
+            { t: "Parenzo", n: "fuori dai coglioni", f: "fuori_dai_coglioni.mp3" }
+            // Qui puoi aggiungere gli altri se ne mancano, ma i principali di Parenzo ci sono tutti
         ];
 
-        // Funzione per riempire la tabella
-        function buildTable() {
-            const tbody = document.getElementById('tableBody');
-            audioData.forEach(item => {
-                const row = `<tr>
-                    <td>${item.tipo}</td>
-                    <td>${item.titolo}</td>
-                    <td><button class="play-btn" onclick="playAudio('${item.file}', '${item.titolo.replace(/'/g, "\\'")}')">PLAY</button></td>
-                </tr>`;
-                tbody.innerHTML += row;
-            });
+        function renderGrid() {
+            const grid = document.getElementById('audioGrid');
+            grid.innerHTML = audioList.map(item => `
+                <div class="audio-card" onclick="play('${item.f}', '${item.n}')">
+                    <div class="tipo">${item.t}</div>
+                    <div class="titolo">${item.n}</div>
+                </div>
+            `).join('');
         }
 
-        // Funzione per gestire il player
-        function playAudio(fileName, title) {
-            const player = document.getElementById('audioPlayer');
-            const displayTitle = document.getElementById('track-title');
-            
-            player.src = GITHUB_BASE + fileName;
-            displayTitle.innerText = "🔊 In riproduzione: " + title;
-            player.load();
+        function play(file, nome) {
+            const player = document.getElementById('mainPlayer');
+            const display = document.getElementById('track-display');
+            player.src = GITHUB_URL + file;
+            display.innerText = "🔊 " + nome;
             player.play();
         }
 
-        $(document).ready(function() {
-            buildTable();
-            $('#zanzaraTable').DataTable({
-                "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json" },
-                "pageLength": 25,
-                "order": [[ 1, "asc" ]]
-            });
-        });
+        function filterAudio() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.getElementsByClassName('audio-card');
+            
+            for (let i = 0; i < cards.length; i++) {
+                const text = cards[i].innerText.toLowerCase();
+                if (text.includes(input)) {
+                    cards[i].classList.remove('hidden');
+                } else {
+                    cards[i].classList.add('hidden');
+                }
+            }
+        }
+
+        window.onload = renderGrid;
     </script>
 </body>
 </html>
