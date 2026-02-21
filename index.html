@@ -6,26 +6,23 @@
     <title>voci da La Zanzara</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #121212; color: white; padding: 20px; padding-bottom: 160px; margin: 0; }
-        h1 { text-align: center; color: #ff4757; text-transform: none; margin-bottom: 10px; }
+        h1 { text-align: center; color: #ff4757; margin-bottom: 10px; }
         
-        /* Barra di ricerca */
         .search-container { max-width: 800px; margin: 0 auto 30px auto; text-align: center; }
         #searchInput { width: 100%; padding: 15px; border-radius: 30px; border: none; font-size: 18px; outline: none; background: #2f3542; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        /* Griglia a Scacchiera */
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; max-width: 1200px; margin: auto; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; max-width: 1200px; margin: auto; }
         
-        .audio-card { background: #2f3542; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: 0.3s; border-bottom: 4px solid #ff4757; display: flex; flex-direction: column; justify-content: space-between; min-height: 100px; }
-        .audio-card:hover { transform: translateY(-5px); background: #3e4452; }
+        .audio-card { background: #2f3542; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: 0.3s; border-bottom: 4px solid #ff4757; display: flex; flex-direction: column; justify-content: center; min-height: 80px; }
+        .audio-card:hover { transform: translateY(-5px); background: #3e4452; border-bottom-color: #ffa502; }
         .audio-card.hidden { display: none; }
         
         .tipo { font-size: 10px; text-transform: uppercase; color: #ff6b81; margin-bottom: 5px; font-weight: bold; }
         .titolo { font-size: 14px; font-weight: 500; line-height: 1.2; }
 
-        /* Player fisso */
         #player-fixed { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e1e1e; padding: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; z-index: 9999; }
-        #track-display { font-size: 16px; color: #ffa502; margin-bottom: 10px; font-weight: bold; text-align: center; }
-        audio { width: 90%; max-width: 800px; height: 50px; }
+        #track-display { font-size: 16px; color: #ffa502; margin-bottom: 10px; font-weight: bold; }
+        audio { width: 90%; max-width: 800px; }
     </style>
 </head>
 <body>
@@ -33,21 +30,21 @@
     <h1>voci da La Zanzara</h1>
 
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Cerca un audio o un personaggio (es. Parenzo)..." onkeyup="filterAudio()">
+        <input type="text" id="searchInput" placeholder="Cerca audio o personaggio (es. Parenzo, Champagne...)" onkeyup="filterAudio()">
     </div>
 
     <div class="grid-container" id="audioGrid">
         </div>
 
     <div id="player-fixed">
-        <div id="track-display">Scegli un audio per iniziare</div>
+        <div id="track-display">Seleziona un audio</div>
         <audio id="mainPlayer" controls></audio>
     </div>
 
     <script>
         const GITHUB_URL = "https://hammer496.github.io/vocizanzara/audio/";
 
-        // DATABASE COMPLETO (Incrocio tra rosetta.txt e lista_finale_nomi.txt)
+        // DATABASE INTEGRALE INCROCIATO DALLE TUE LISTE
         const audioList = [
             { t: "Demone Scimmia", n: "tutto è droga", f: "tutto_e_droga.mp3" },
             { t: "Alessio Lizzio ?", n: "ridata", f: "ridata.mp3" },
@@ -74,13 +71,20 @@
             { t: "Parenzo", n: "non me ne frega niente", f: "non_me_ne_frega_niente.mp3" },
             { t: "Parenzo", n: "vergognatevi", f: "vergognatevi.mp3" },
             { t: "Parenzo", n: "lei è un miserabile", f: "lei_e_un_miserabile.mp3" },
-            { t: "Parenzo", n: "fuori dai coglioni", f: "fuori_dai_coglioni.mp3" }
-            // Qui puoi aggiungere gli altri se ne mancano, ma i principali di Parenzo ci sono tutti
+            { t: "Parenzo", n: "fuori dai coglioni", f: "fuori_dai_coglioni.mp3" },
+            { t: "Parenzo", n: "mi faccia parlare", f: "mi_faccia_parlare.mp3" },
+            { t: "Parenzo", n: "lei è un ignorante", f: "lei_e_un_ignorante.mp3" },
+            { t: "Parenzo", n: "stia zitto", f: "stia_zitto.mp3" },
+            { t: "Parenzo", n: "che schifo", f: "che_schifo.mp3" },
+            { t: "Parenzo", n: "orrore", f: "orrore.mp3" },
+            { t: "Parenzo", n: "fascista", f: "fascista.mp3" },
+            { t: "Donato da Varese", n: "viva la libertà", f: "viva_la_liberta.mp3" },
+            { t: "Donato da Varese", n: "non c'è problema", f: "non_ce_problema.mp3" }
         ];
 
         function renderGrid() {
             const grid = document.getElementById('audioGrid');
-            grid.innerHTML = audioList.map(item => `
+            grid.innerHTML = audioList.sort((a, b) => a.n.localeCompare(b.n)).map(item => `
                 <div class="audio-card" onclick="play('${item.f}', '${item.n}')">
                     <div class="tipo">${item.t}</div>
                     <div class="titolo">${item.n}</div>
@@ -93,20 +97,16 @@
             const display = document.getElementById('track-display');
             player.src = GITHUB_URL + file;
             display.innerText = "🔊 " + nome;
-            player.play();
+            player.load();
+            player.play().catch(e => console.log("Errore: il file non esiste ancora su GitHub"));
         }
 
         function filterAudio() {
             const input = document.getElementById('searchInput').value.toLowerCase();
             const cards = document.getElementsByClassName('audio-card');
-            
             for (let i = 0; i < cards.length; i++) {
                 const text = cards[i].innerText.toLowerCase();
-                if (text.includes(input)) {
-                    cards[i].classList.remove('hidden');
-                } else {
-                    cards[i].classList.add('hidden');
-                }
+                cards[i].classList.toggle('hidden', !text.includes(input));
             }
         }
 
