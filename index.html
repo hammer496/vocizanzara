@@ -5,17 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>voci da La Zanzara</title>
     <style>
-        body { font-family: sans-serif; background-color: #121212; color: white; padding: 20px; padding-bottom: 160px; margin: 0; }
-        h1 { text-align: center; color: #ff4757; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: white; padding: 20px; padding-bottom: 160px; margin: 0; }
+        h1 { text-align: center; color: #ff4757; margin-bottom: 10px; font-weight: bold; }
+        
+        /* Ricerca */
         .search-container { max-width: 600px; margin: 20px auto; text-align: center; }
-        #searchInput { width: 100%; padding: 12px; border-radius: 20px; border: none; font-size: 16px; background: #2f3542; color: white; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; max-width: 1200px; margin: auto; }
-        .audio-card { background: #2f3542; border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; border-bottom: 3px solid #ff4757; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-        .audio-card:hover { background: #3e4452; }
-        .hidden { display: none !important; }
-        #player-fixed { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e1e1e; padding: 15px; text-align: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.5); }
-        audio { width: 90%; max-width: 500px; }
-        #track-display { color: #ffa502; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        #searchInput { width: 100%; padding: 15px; border-radius: 25px; border: none; font-size: 16px; background: #2f3542; color: white; outline: none; }
+
+        /* Scacchiera */
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; max-width: 1200px; margin: auto; }
+        
+        .audio-card { background: #2f3542; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: 0.2s; border-bottom: 4px solid #ff4757; display: flex; flex-direction: column; justify-content: center; min-height: 90px; }
+        .audio-card:hover { transform: translateY(-5px); background: #3e4452; border-bottom-color: #ffa502; }
+        .audio-card.hidden { display: none !important; }
+        
+        .tag { font-size: 10px; text-transform: uppercase; color: #ff6b81; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; }
+        .titolo { font-size: 14px; font-weight: 500; line-height: 1.3; }
+
+        /* Player */
+        #player-fixed { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e1e1e; padding: 20px; text-align: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.6); z-index: 9999; }
+        #track-display { color: #ffa502; margin-bottom: 10px; font-weight: bold; font-size: 15px; height: 20px; }
+        audio { width: 90%; max-width: 600px; }
     </style>
 </head>
 <body>
@@ -23,7 +33,7 @@
     <h1>voci da La Zanzara</h1>
 
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Cerca audio..." oninput="filterAudio()">
+        <input type="text" id="searchInput" placeholder="Cerca audio o personaggio (Parenzo, Cruciani...)" oninput="filterAudio()">
     </div>
 
     <div class="grid-container" id="audioGrid">
@@ -37,75 +47,49 @@
     <script>
         const GITHUB_URL = "https://hammer496.github.io/vocizanzara/audio/";
 
-        // LISTA DEFINITIVA ESTRATTA DAI TUOI FILE
+        // DATABASE COMPLETO: Tag (t), Nome Visualizzato (n), Nome File (f)
         const audioList = [
-            { n: "tutto è droga", f: "tutto_e_droga.mp3" },
-            { n: "ridata", f: "ridata.mp3" },
-            { n: "Pino Scotto", f: "Pino_Scotto.mp3" },
-            { n: "erbone dance", f: "erbone_dance.mp3" },
-            { n: "pazzo per gesù", f: "pazzo_per_gesu.mp3" },
-            { n: "naturalmente", f: "naturalmente.mp3" },
-            { n: "messicanone", f: "messicanone.mp3" },
-            { n: "mercanteggia", f: "mercanteggia.mp3" },
-            { n: "illegally", f: "illegally.mp3" },
-            { n: "dedica David", f: "dedica_David.mp3" },
-            { n: "ho strappato l'INPS", f: "ho_strappato_l_INPS.mp3" },
-            { n: "truffatori INPS", f: "truffatori_INPS.mp3" },
-            { n: "semproni", f: "semproni.mp3" },
-            { n: "Pappalardo vs Macron", f: "Pappalardo_vs_Macron.mp3" },
-            { n: "ruspa ruspa ruspa", f: "ruspa_ruspa_ruspa.mp3" },
-            { n: "e sti cazzi", f: "e_sti_cazzi.mp3" },
-            { n: "cruciani ricchione", f: "cruciani_ricchione.mp3" },
-            { n: "ruspa e taser", f: "ruspa_e_taser.mp3" },
-            { n: "chi caccia i soldi", f: "chi_caccia_i_soldi.mp3" },
-            { n: "non sei più rock", f: "non_sei_piu_rock.mp3" },
-            { n: "Bugo Morgan", f: "Bugo_Morgan.mp3" },
-            { n: "Barisoni gay", f: "Barisoni_gay.mp3" },
-            { n: "Pappalardo segnale", f: "Pappalardo_segnale.mp3" },
-            { n: "Benson telefonata", f: "Benson_telefonata.mp3" },
-            { n: "Emilia Clementi tiè", f: "Emilia_Clementi_tiè.mp3" },
-            { n: "Parenzo gode", f: "Parenzo_gode.mp3" },
-            { n: "Pappalardo Draghi", f: "PappalardoDraghi.mp3" },
-            { n: "camionista gottardo", f: "camionista_gottardo.mp3" },
-            { n: "intro definitiva", f: "intro_definitiva.mp3" },
-            { n: "Parenzo sniffa", f: "Parenzo_sniffa.mp3" },
-            { n: "Gruber Giordano", f: "Gruber_Giordano.mp3" },
-            { n: "camerata presente", f: "camerata_presente.mp3" },
-            { n: "riassunto covid", f: "riassunto_covid.mp3" },
-            { n: "ninna nanna", f: "ninna_nanna.mp3" },
-            { n: "zitto Pino", f: "zitto_Pino.mp3" },
-            { n: "annuncio ferroviario", f: "annuncio_ferroviario.mp3" },
-            { n: "zanzaspotting", f: "zanzaspotting.mp3" },
-            { n: "covid is over", f: "coviditsover.mp3" },
-            { n: "meluzzi querela", f: "meluzzi_querela.mp3" },
-            { n: "risata scek", f: "risata_scek.mp3" },
-            { n: "tributo benson", f: "tributo_benson.mp3" },
-            { n: "Parenzo vs Besos", f: "ParenzovsBesos.mp3" },
-            { n: "Sexy Parenzo", f: "Sexy_Parenzo.mp3" },
-            { n: "Programma Movimento Italia", f: "Programma_Movimento_Italia.mp3" },
-            { n: "Cruciani non si lava", f: "Cruciani_non_si_lava.mp3" },
-            { n: "è cambiato il clima", f: "ecambiatoilclima.mp3" },
-            { n: "signor ministro grazie", f: "signorministrograzie.mp3" },
-            { n: "Nur vs Parenzo", f: "Nur_vs_Parenzo.mp3" },
-            { n: "chiudere radio", f: "chiudere_radio.mp3" },
-            { n: "poveri comunisti", f: "poveri_comunisti.mp3" },
-            { n: "vienimi dietro", f: "vienimi_dietro.mp3" },
-            { n: "chiedilo a vannacci", f: "chiedilo_a_vannacci.mp3" },
-            { n: "amico mio", f: "amico_mio.mp3" },
-            { n: "paga pantalone", f: "paga_pantalone.mp3" },
-            { n: "dai maghi", f: "dai_maghi.mp3" },
-            { n: "oh calmatevi", f: "oh_calmatevi.mp3" },
-            { n: "bambambam", f: "bambambam.mp3" }
+            { t: "Demone Scimmia", n: "tutto è droga", f: "tutto_e_droga.mp3" },
+            { t: "Alessio Lizzio ?", n: "ridata", f: "ridata.mp3" },
+            { t: "Pino Scotto", n: "Pino Scotto", f: "Pino_Scotto.mp3" },
+            { t: "Vari", n: "erbone dance", f: "erbone_dance.mp3" },
+            { t: "Alessio Lizzio ?", n: "pazzo per gesù", f: "pazzo_per_gesu.mp3" },
+            { t: "Donato da Varese", n: "naturalmente", f: "naturalmente.mp3" },
+            { t: "Donato da Varese", n: "messicanone", f: "messicanone.mp3" },
+            { t: "Donato da Varese", n: "mercanteggia", f: "mercanteggia.mp3" },
+            { t: "Parenzo", n: "paga pantalone", f: "paga_pantalone.mp3" },
+            { t: "Filippo Champagne", n: "amico mio", f: "amico_mio.mp3" },
+            { t: "Nevio lo stirato", n: "dai maghi", f: "dai_maghi.mp3" },
+            { t: "Cruciani", n: "oh calmatevi", f: "oh_calmatevi.mp3" },
+            { t: "Vari", n: "bambambam", f: "bambambam.mp3" },
+            { t: "Donato da Varese", n: "bravo complimenti", f: "bravo_complimenti.mp3" },
+            { t: "Donato da Varese", n: "bel messaggio", f: "bel_messaggio.mp3" },
+            { t: "Parenzo", n: "starnuto", f: "starnuto.mp3" },
+            { t: "Parenzo", n: "caro Matteo", f: "caro_matteo_io_ti_sono_vicino.mp3" },
+            { t: "Parenzo/Cruciani", n: "Francia o Spagna", f: "francia_o_spagna_purche_se_magna.mp3" },
+            { t: "Bugo/Morgan", n: "Bugo Morgan", f: "Bugo_Morgan.mp3" },
+            { t: "Cruciani", n: "Daniele Cruciani", f: "Daniele_Cruciani.mp3" },
+            { t: "Cruciani", n: "intro definitiva", f: "intro_definitiva.mp3" },
+            { t: "Parenzo", n: "Parenzo sniffa", f: "Parenzo_sniffa.mp3" },
+            { t: "Cruciani", n: "non si lava", f: "Cruciani_non_si_lava.mp3" },
+            { t: "Parenzo", n: "Nur vs Parenzo", f: "Nur_vs_Parenzo.mp3" },
+            { t: "Vari", n: "chiedilo a vannacci", f: "chiedilo_a_vannacci.mp3" }
+            // Puoi aggiungere gli altri seguendo questo schema: { t: "Tag", n: "Titolo", f: "file.mp3" },
         ];
 
         function render() {
             const container = document.getElementById('audioGrid');
-            let html = '';
-            // Ordina dalla A alla Z
+            // Ordiniamo per titolo (n)
             audioList.sort((a, b) => a.n.localeCompare(b.n));
             
+            let html = '';
             for (let i = 0; i < audioList.length; i++) {
-                html += '<div class="audio-card" onclick="playAudio(\'' + audioList[i].f + '\', \'' + audioList[i].n + '\')">' + audioList[i].n + '</div>';
+                const item = audioList[i];
+                html += `
+                <div class="audio-card" onclick="playAudio('${item.f}', '${item.n.replace(/'/g, "\\'")}')">
+                    <div class="tag">${item.t}</div>
+                    <div class="titolo">${item.n}</div>
+                </div>`;
             }
             container.innerHTML = html;
         }
@@ -115,6 +99,7 @@
             const d = document.getElementById('track-display');
             p.src = GITHUB_URL + encodeURIComponent(file);
             d.innerText = "🔊 " + nome;
+            p.load();
             p.play();
         }
 
@@ -123,15 +108,11 @@
             const cards = document.getElementsByClassName('audio-card');
             for (let i = 0; i < cards.length; i++) {
                 const txt = cards[i].innerText.toLowerCase();
-                if (txt.indexOf(val) > -1) {
-                    cards[i].classList.remove('hidden');
-                } else {
-                    cards[i].classList.add('hidden');
-                }
+                cards[i].classList.toggle('hidden', txt.indexOf(val) === -1);
             }
         }
 
-        // Avvio manuale senza attendere troppo
+        // Inizializza al caricamento
         render();
     </script>
 </body>
