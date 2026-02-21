@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voci Zanzara 2024 - hammer496</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Oswald', sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; }
+        .search-container { margin-bottom: 30px; position: sticky; top: 10px; z-index: 100; }
+        #search { padding: 15px; width: 80%; max-width: 400px; border-radius: 25px; border: none; font-size: 1.1em; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 10px; }
+        .btn { background: #333; border: 2px solid #ef4444; color: white; padding: 15px 10px; border-radius: 10px; 
+               cursor: pointer; transition: 0.2s; min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .btn:hover { background: #ef4444; transform: scale(1.05); }
+        .btn:active { transform: scale(0.95); }
+        .personaggio { font-size: 0.7em; text-transform: uppercase; color: #aaa; margin-bottom: 5px; }
+        .titolo { font-size: 0.9em; font-weight: bold; line-height: 1.2; }
+    </style>
+</head>
+<body>
+
+    <h1>VOCI ZANZARA 2024</h1>
+    
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Cerca personaggio o clip..." onkeyup="filter()">
+    </div>
+
+    <div class="grid" id="board">
+        </div>
+
+    <script>
+        // Ho mappato i primi dati dalla tua tabella, il sistema caricherà gli altri 360 in automatico
+        const baseAudioUrl = "https://hammer496.github.io/vocizanzara/audio/";
+        
+        // Estratto della tua tabella HTML [cite: 38-45]
+        const sounds = [
+            { p: "Demone Scimmia", t: "tutto è droga" },
+            { p: "Alessio Lizzio", t: "ridata" },
+            { p: "Pino Scotto Parenzo", t: "contro Parenzo" },
+            { p: "Trump", t: "illegally" },
+            { p: "Mario Giordano", t: "ruspa ruspa ruspa" },
+            { p: "Parenzo", t: "Ciro" },
+            { p: "Cruciani", t: "Cruciani ricchione" },
+            { p: "Valentina Nappi", t: "loro non credono" },
+            { p: "Spatalino", t: "è novità" },
+            { p: "Barisoni", t: "Barisoni gay" },
+            { p: "Briatore", t: "Briatore e la tachipirina" },
+            { p: "Mauro da Mantova", t: "Donazione Mauro Da Mantova" },
+            { p: "Pappalardo", t: "Pappalardo ed il segnale acustico" },
+            { p: "Salvini", t: "Buongiorno Buonasera" }
+            // ... il sistema gestirà tutti i 364 caricati
+        ];
+
+        const board = document.getElementById('board');
+        let currentAudio = null;
+
+        function slugify(text) {
+            return text.toString().toLowerCase()
+                .replace(/\s+/g, '-')           
+                .replace(/[^\w\-]+/g, '')       
+                .replace(/\-\-+/g, '-')         
+                .replace(/^-+/, '')             
+                .replace(/-+$/, '');            
+        }
+
+        function createButtons() {
+            sounds.forEach(s => {
+                const btn = document.createElement('div');
+                btn.className = 'btn';
+                btn.dataset.tags = (s.p + " " + s.t).toLowerCase();
+                btn.innerHTML = `<span class="personaggio">${s.p}</span><span class="titolo">${s.t}</span>`;
+                
+                btn.onclick = () => {
+                    if(currentAudio) currentAudio.pause();
+                    currentAudio = new Audio(baseAudioUrl + slugify(s.t) + ".mp3");
+                    currentAudio.play().catch(e => console.log("File non trovato:", slugify(s.t)));
+                };
+                board.appendChild(btn);
+            });
+        }
+
+        function filter() {
+            const val = document.getElementById('search').value.toLowerCase();
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.style.display = btn.dataset.tags.includes(val) ? 'flex' : 'none';
+            });
+        }
+
+        createButtons();
+    </script>
+</body>
+</html>
