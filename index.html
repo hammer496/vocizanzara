@@ -3,101 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voci Zanzara 2024</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <title>voci da La Zanzara</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <style>
-        body { font-family: 'Oswald', sans-serif; background: #121212; color: white; text-align: center; margin: 0; padding-bottom: 120px; }
-        h1 { color: #ef4444; font-size: 1.8em; margin: 20px 0; text-transform: uppercase; }
-        .search-container { position: sticky; top: 0; background: #121212; padding: 15px 0; z-index: 100; border-bottom: 1px solid #333; }
-        #search { padding: 12px 20px; width: 85%; max-width: 400px; border-radius: 30px; border: 2px solid #333; background: #222; color: white; outline: none; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 10px; padding: 15px; }
-        .btn { background: #1e1e1e; border: 1px solid #333; border-bottom: 4px solid #000; color: white; padding: 10px; border-radius: 12px; cursor: pointer; min-height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.1s; }
-        .btn:active { transform: translateY(2px); border-bottom-width: 1px; }
-        .btn.playing { border: 2px solid #ef4444; background: #2a2a2a; }
-        .personaggio { font-size: 0.65em; text-transform: uppercase; color: #ef4444; font-weight: bold; }
-        .titolo { font-size: 0.85em; line-height: 1.2; margin-top: 5px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f0f2f5; padding-bottom: 120px; }
+        h1 { text-align: center; color: #1a1a1a; margin-bottom: 30px; text-transform: none; }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        /* PLAYER IN BASSO */
-        .player-container { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e1e1e; border-top: 3px solid #ef4444; padding: 15px 0; z-index: 1000; }
-        #current-track { font-size: 0.8em; margin-bottom: 10px; color: #ef4444; font-weight: bold; }
-        audio { width: 90%; max-width: 500px; filter: invert(1); }
+        /* Stile pulsanti */
+        .play-btn { background-color: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .play-btn:hover { background-color: #ff6b81; transform: scale(1.05); }
+
+        /* Player fisso in basso */
+        #player-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #2f3542;
+            padding: 20px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            z-index: 1000;
+        }
+        audio { width: 90%; max-width: 800px; margin-top: 10px; }
+        #current-track { font-size: 16px; font-weight: 500; color: #ffa502; }
+
+        /* Personalizzazione tabella */
+        table.dataTable thead th { background-color: #2f3542; color: white; border: none; }
+        .dataTables_wrapper .dataTables_filter input { padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-    <h1>VOCI ZANZARA 2024</h1>
-    <div class="search-container">
-        <input type="text" id="search" placeholder="Cerca clip..." onkeyup="filter()">
-    </div>
+    <h1>voci da La Zanzara</h1>
 
-    <div class="grid" id="board"></div>
-
-    <div class="player-container">
-        <div id="current-track">Seleziona una clip</div>
-        <audio id="main-player" controls></audio>
-    </div>
-
-    <script>
-        const audioFolder = "audio/";
-        const player = document.getElementById('main-player');
-        const trackLabel = document.getElementById('current-track');
-
-        // Mappatura derivata dalla tua lista reale dei file su GitHub
-        const sounds = [
-            {p: "Demone Scimmia", t: "Tutto è droga", f: "tutto_e_droga.mp3"},
-            {p: "Pino Scotto", t: "Contro Parenzo", f: "Pino_Scotto.mp3"},
-            {p: "Trump", t: "50 Cent", f: "50cent_Trump.mp3"},
-            {p: "Barisoni", t: "Barisoni Gay", f: "Barisoni_gay.mp3"},
-            {p: "Barisoni", t: "Barisoni", f: "Barisoni.mp3"},
-            {p: "Richard Benson", t: "Pippo Baudo", f: "Benson_Pippo_Baudo.mp3"},
-            {p: "Richard Benson", t: "La telefonata", f: "Benson_telefonata.mp3"},
-            {p: "Briatore", t: "Tachipirina", f: "Briatore_tachipirina.mp3"},
-            {p: "Bugo Morgan", t: "Dov'è Bugo", f: "Bugo_Morgan.mp3"},
-            {p: "Carisio", t: "Casello", f: "Carisio.mp3"},
-            {p: "Cruciani", t: "Gomorra", f: "Cruciani_gomorra.mp3"},
-            {p: "Cruciani", t: "Non si lava", f: "Cruciani_non_si_lava.mp3"},
-            {p: "Cruciani", t: "VS Mario", f: "Cruciani_vs_Mario.mp3"},
-            {p: "Luttwak", t: "Urlo", f: "urlare_luttwak.mp3"},
-            {p: "Salvini", t: "Buongiorno", f: "buongiornobuonasera.mp3"},
-            {p: "Valentina Nappi", t: "Loro non credono", f: "valentina_nappi_loro.mp3"},
-            {p: "Mario Giordano", t: "Ruspare", f: "verbo_ruspare.mp3"},
-            {p: "Parenzo", t: "Verità", f: "verita_parenzo.mp3"},
-            {p: "Mauro da Mantova", t: "Donazione", f: "Donazione_Mauro.mp3"},
-            {p: "Spatalino", t: "Novità", f: "Spatalino_novita.mp3"},
-            {p: "Vari", t: "Vergognati", f: "vergognati.mp3"},
-            {p: "Vari", t: "Vada via", f: "vada_via.mp3"},
-            {p: "Vari", t: "Applauso", f: "un_applauso.mp3"},
-            {p: "Vari", t: "Una vergogna", f: "una_vergogna.mp3"}
-        ];
-
-        function playClip(file, title, btn) {
-            document.querySelectorAll('.btn').forEach(b => b.classList.remove('playing'));
-            btn.classList.add('playing');
-            trackLabel.innerText = "In riproduzione: " + title;
-            player.src = audioFolder + file;
-            player.play();
-        }
-
-        function render() {
-            const board = document.getElementById('board');
-            sounds.forEach(s => {
-                const btn = document.createElement('div');
-                btn.className = 'btn';
-                btn.dataset.tags = (s.p + " " + s.t).toLowerCase();
-                btn.innerHTML = `<span class="personaggio">${s.p}</span><span class="titolo">${s.t}</span>`;
-                btn.onclick = () => playClip(s.f, s.t, btn);
-                board.appendChild(btn);
-            });
-        }
-
-        function filter() {
-            const val = document.getElementById('search').value.toLowerCase();
-            document.querySelectorAll('.btn').forEach(btn => {
-                btn.style.display = btn.dataset.tags.includes(val) ? 'flex' : 'none';
-            });
-        }
-
-        render();
-    </script>
-</body>
-</html>
+    <div class="container">
+        <table id="zanzaraTable" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>TIPO</th>
+                    <th>AUDIO</th>
+                    <th>ASCOLTA</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Demone Scimmia</td>
+                    <td>tutto è droga</td>
+                    <td><button class="play-btn" onclick="suona('
