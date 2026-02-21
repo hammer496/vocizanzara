@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voci Zanzara 2024</title>
+    <title>Voci Zanzara 2024 - Hammer Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Oswald', sans-serif; background: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
         h1 { color: #ef4444; font-size: 1.8em; margin: 20px 0; text-transform: uppercase; }
         .search-container { position: sticky; top: 0; background: #121212; padding: 15px 0; z-index: 100; }
         #search { padding: 12px 20px; width: 85%; max-width: 400px; border-radius: 30px; border: 2px solid #333; background: #222; color: white; outline: none; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; }
-        .btn { background: #1e1e1e; border: 1px solid #333; border-bottom: 4px solid #000; color: white; padding: 10px; border-radius: 12px; cursor: pointer; min-height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .btn:active { transform: translateY(2px); border-bottom-width: 1px; }
-        .personaggio { font-size: 0.6em; text-transform: uppercase; color: #ef4444; font-weight: bold; }
-        .titolo { font-size: 0.8em; line-height: 1.2; margin-top: 5px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; max-width: 1200px; margin: 0 auto; }
+        .btn { background: #1e1e1e; border: 1px solid #333; border-bottom: 4px solid #000; color: white; padding: 10px; border-radius: 12px; cursor: pointer; min-height: 95px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.1s; }
+        .btn:active { transform: translateY(3px); border-bottom-width: 1px; }
+        .personaggio { font-size: 0.65em; text-transform: uppercase; color: #ef4444; font-weight: bold; }
+        .titolo { font-size: 0.85em; line-height: 1.2; margin-top: 5px; }
         .playing { background: #ef4444 !important; }
     </style>
 </head>
@@ -22,90 +22,71 @@
 
     <h1>VOCI ZANZARA 2024</h1>
     <div class="search-container">
-        <input type="text" id="search" placeholder="Cerca..." onkeyup="filter()">
+        <input type="text" id="search" placeholder="Cerca clip o personaggio..." onkeyup="filter()">
     </div>
     <div class="grid" id="board"></div>
 
     <script>
         const audioFolder = "audio/";
         
-        // Mappatura manuale per i casi "difficili" che ho trovato nei tuoi file
-        const manualMap = {
-            "tutto è droga": "tutto_e_droga.mp3",
-            "contro Parenzo": "Pino_Scotto.mp3",
-            "ridata": "ahah.mp3",
-            "erbone dance": "canzone_rap.mp3",
-            "ruspa ruspa ruspa": "verbo_ruspare.mp3",
-            "illegally": "50cent_Trump.mp3",
-            "è novità": "Spatalino_novita.mp3",
-            "loro non credono": "valentina_nappi_loro.mp3",
-            "Buongiorno Buonasera": "buongiornobuonasera.mp3",
-            "chi caccia i soldi": "cashcashcash.mp3",
-            "mal di gola": "Ebbro.mp3"
-        };
-
-        // Funzione per pulire i nomi (la nostra Stele di Rosetta automatica)
-        function slugify(text) {
-            return text.toString().toLowerCase().trim()
-                .replace(/\s+/g, '_')           
-                .replace(/[àáâãäå]/g, "a")
-                .replace(/[èéêë]/g, "e")
-                .replace(/[ìíîï]/g, "i")
-                .replace(/[òóôõö]/g, "o")
-                .replace(/[ùúûü]/g, "u")
-                .replace(/[^\w\-]+/g, '')       
-                + ".mp3";
-        }
-
-        // Dati estratti dalla tua tabella (i primi 50 come esempio, ma la logica è per tutti)
-        const rawData = [
-            {p: "Demone Scimmia", t: "tutto è droga"},
-            {p: "Pino Scotto", t: "contro Parenzo"},
-            {p: "Alessio Lizzio", t: "ridata"},
-            {p: "Trump", t: "illegally"},
-            {p: "Mario Giordano", t: "ruspa ruspa ruspa"},
-            {p: "Barisoni", t: "Barisoni gay"},
-            {p: "Briatore", t: "tachipirina"},
-            {p: "Parenzo", t: "Ciro"},
-            {p: "Spatalino", t: "è novità"},
-            {p: "Carisio", t: "casello di Carisio"},
-            {p: "Valentina Nappi", t: "loro non credono"},
-            {p: "Salvini", t: "Buongiorno Buonasera"}
-            // Aggiungerò tutti gli altri qui sotto
+        // MAPPATURA MANUALE 1:1 (Basata sui tuoi file lista.txt e table.txt)
+        const sounds = [
+            {p: "Demone Scimmia", t: "tutto è droga", f: "tutto_e_droga.mp3"},
+            {p: "Alessio Lizzio", t: "ridata", f: "ahahahah.mp3"}, // Corretto su quella lunga
+            {p: "Pino Scotto", t: "contro Parenzo", f: "Pino_Scotto.mp3"},
+            {p: "vari", t: "erbone dance", f: "canzone_rap.mp3"},
+            {p: "Alessio Lizzio", t: "pazzo per Gesù", f: "pazzo_per_gesu.mp3"},
+            {p: "vari", t: "messicanone", f: "messicanone.mp3"},
+            {p: "Trump", t: "illegally", f: "50cent_Trump.mp3"},
+            {p: "Semproni", t: "Semproni e la nerchia", f: "Semproni.mp3"},
+            {p: "Pappalardo", t: "contro Macron", f: "Pappalardo_vs_Macron.mp3"},
+            {p: "Mario Giordano", t: "ruspa ruspa ruspa", f: "verbo_ruspare.mp3"},
+            {p: "Parenzo", t: "Ciro", f: "ciro.mp3"},
+            {p: "Mario Giordano", t: "verbo ruspare", f: "verbo_ruspare.mp3"},
+            {p: "Richard Benson", t: "chi caccia i soldi", f: "cashcashcash.mp3"},
+            {p: "Valentina Nappi", t: "loro non credono", f: "valentina_nappi_loro.mp3"},
+            {p: "Spatalino", t: "è novità", f: "Spatalino_novita.mp3"},
+            {p: "Bugo Morgan", t: "Bugo e Morgan", f: "Bugo_Morgan.mp3"},
+            {p: "Cruciani", t: "Cruciani vs Mario", f: "Cruciani_vs_Mario.mp3"},
+            {p: "Barisoni", t: "Barisoni gay", f: "Barisoni_gay.mp3"},
+            {p: "Briatore", t: "tachipirina", f: "Briatore_tachipirina.mp3"},
+            {p: "Mauro da Mantova", t: "Donazione Mauro", f: "Donazione_Mauro.mp3"},
+            {p: "Efe Bal", t: "mal di gola", f: "Ebbro.mp3"},
+            {p: "Richard Benson", t: "Pippo Baudo", f: "Benson_Pippo_Baudo.mp3"},
+            {p: "Richard Benson", t: "la telefonata", f: "Benson_telefonata.mp3"},
+            {p: "Salvini", t: "Buongiorno Buonasera", f: "buongiornobuonasera.mp3"},
+            {p: "Carisio", t: "Casello di Carisio", f: "Carisio.mp3"},
+            {p: "Cruciani", t: "non si lava", f: "Cruciani_non_si_lava.mp3"},
+            {p: "Luttwak", t: "Urlo Luttwak", f: "urlare_luttwak.mp3"}
+            // ... ne mancano altri, ma questi sono quelli sicuri al 100%
         ];
 
         let currentAudio = null;
+        let currentBtn = null;
 
-        function play(title, btn) {
-            if (currentAudio) currentAudio.pause();
-            
-            // 1. Prova mappa manuale 2. Prova slugify del titolo 3. Prova slugify con trattini
-            let file = manualMap[title] || slugify(title);
-            
-            let audio = new Audio(audioFolder + file);
-            audio.play().then(() => {
-                document.querySelectorAll('.btn').forEach(b => b.classList.remove('playing'));
+        function playSound(file, btn) {
+            if (currentAudio) {
+                currentAudio.pause();
+                if (currentBtn) currentBtn.classList.remove('playing');
+            }
+            currentAudio = new Audio(audioFolder + file);
+            currentAudio.play().then(() => {
                 btn.classList.add('playing');
-                currentAudio = audio;
+                currentBtn = btn;
             }).catch(() => {
-                // Se fallisce, tenta con i trattini invece degli underscore
-                let file2 = file.replace(/_/g, "-");
-                let audio2 = new Audio(audioFolder + file2);
-                audio2.play().then(() => {
-                    btn.classList.add('playing');
-                    currentAudio = audio2;
-                }).catch(() => alert("File non trovato: " + file));
+                console.log("Errore caricamento: " + file);
             });
+            currentAudio.onended = () => btn.classList.remove('playing');
         }
 
         function render() {
             const board = document.getElementById('board');
-            rawData.forEach(s => {
+            sounds.forEach(s => {
                 const btn = document.createElement('div');
                 btn.className = 'btn';
                 btn.dataset.tags = (s.p + " " + s.t).toLowerCase();
                 btn.innerHTML = `<span class="personaggio">${s.p}</span><span class="titolo">${s.t}</span>`;
-                btn.onclick = () => play(s.t, btn);
+                btn.onclick = () => playSound(s.f, btn);
                 board.appendChild(btn);
             });
         }
