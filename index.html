@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>voci da La Zanzara</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #121212; color: white; padding: 20px; padding-bottom: 160px; margin: 0; }
         h1 { text-align: center; color: #ff4757; text-transform: none; margin-bottom: 10px; }
         
@@ -53,6 +56,11 @@
         }
         /* Modifica solo per schermi piccoli (smartphone) */
 @media (max-width: 480px) {
+    .search-container {
+            width: 100%;
+            padding: 0;
+            margin-bottom: 20px;
+        }
     .grid-container {
         grid-template-columns: repeat(2, 1fr); /* Forza sempre 2 colonne */
         gap: 8px; /* Riduce un po' lo spazio per guadagnare posto */
