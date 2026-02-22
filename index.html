@@ -42,6 +42,15 @@
         }
         #track-display { font-size: 15px; color: #ffa502; margin-bottom: 8px; font-weight: bold; }
         audio { width: 90%; max-width: 600px; height: 45px; }
+        /* disclaimer */
+        .disclaimer {
+            font-size: 10px;
+            color: #888;
+            margin-top: 10px;
+            text-align: center;
+            line-height: 1.2;
+            max-width: 80%;
+        }
     </style>
 </head>
 <body>
@@ -58,6 +67,11 @@
     <div id="player-fixed">
         <div id="track-display">Seleziona un audio</div>
         <audio id="mainPlayer" controls></audio>
+
+        <div class="disclaimer">
+        Tutto il materiale audio presente viene messo a disposizione degli ascoltatori per puro spirito di divertimento, inoltre si precisa che tale materiale è stato preso dalla trasmissione La Zanzara di Radio24 la quale ne detiene tutti i diritti.
+Chiunque si senta offeso o in imbarazzo riguardo una delle clip audio qui proposte, può contattare l'autore del sito che provvederà a rimuovere l'audio incriminato.
+    </div>
     </div>
 
     <script>
