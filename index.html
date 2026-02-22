@@ -51,6 +51,22 @@
             line-height: 1.2;
             max-width: 80%;
         }
+        /* Modifica solo per schermi piccoli (smartphone) */
+@media (max-width: 480px) {
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr); /* Forza sempre 2 colonne */
+        gap: 8px; /* Riduce un po' lo spazio per guadagnare posto */
+    }
+    
+    .audio-card {
+        padding: 10px; /* Riduce il padding interno */
+        min-height: 80px; /* Abbassa un po' l'altezza minima */
+    }
+
+    .titolo {
+        font-size: 12px; /* Testo leggermente più piccolo per farlo stare nel quadrato */
+    }
+}
     </style>
 </head>
 <body>
