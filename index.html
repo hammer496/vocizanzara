@@ -236,6 +236,14 @@
         }
 
         window.onload = render;
+        // Registrazione del Service Worker per attivare l'installazione PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch", (event) => {});')
+          .then(() => console.log("Service Worker Attivo"))
+          .catch((err) => console.log("Errore SW", err));
+      });
+    }
     </script>
 </body>
 </html>
