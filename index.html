@@ -159,6 +159,9 @@
   transition: 0.5s;
   padding-top: 60px;
   box-shadow: 2px 0px 10px rgba(0,0,0,0.5);
+    overflow-y: auto; /* Questa permette lo scroll verticale se serve */
+  max-height: 100vh; /* Assicura che non superi mai l'altezza dello schermo */
+  -webkit-overflow-scrolling: touch; /* Rende lo scorrimento fluido su iPhone/iOS */
 }
 
 .menu-content {
@@ -221,7 +224,9 @@
     <h3>voci da La Zanzara</h3>
     <p>la raccolta delle perle radiofoniche tratte da La Zanzara.</p>
     <hr>
+    <a href="#" onclick="condividiApp(); return false;">🔗 Condividi l'App</a>
     <a href="https://www.facebook.com/groups/vocidalazanzara" target="_blank">👥 Gruppo Facebook</a>
+    
     <div style="padding: 20px; margin: 15px; background: #1e1e1e; border-radius: 12px; text-align: center; border: 1px solid #333;">
           <p style="color: #1DB954; font-weight: bold; font-size: 16px; margin-bottom: 8px; font-family: sans-serif;">
             Hai una clip audio da suggerire?
@@ -229,14 +234,13 @@
           <p style="color: #b3b3b3; font-size: 13px; margin-bottom: 20px; font-family: sans-serif; line-height: 1.4;">
             Inviaci il titolo, le indicazioni di data della puntata e minuto o il link dell'audio mancante tramite il modulo sicuro di lowcuras.
           </p>
-  
           <a href="https://www.lowcuras.com/p/contattami.html" 
              target="_blank" 
              style="display: inline-block; background: #1DB954; color: #000; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; transition: transform 0.2s ease;">
              INVIA SUGGERIMENTO
           </a>
         </div>
-    <a href="#" onclick="condividiApp(); return false;">🔗 Condividi l'App</a>
+    
     <hr>
     <p class="disclaimer">App amatoriale non ufficiale. Tutti i diritti appartengono a Radio 24.</p>
   </div>
