@@ -130,6 +130,69 @@
     cursor: pointer;
     margin-left: 10px;
 }
+        /* Stile tasto Hamburger */
+#hamburger-menu {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  cursor: pointer;
+  z-index: 1000;
+}
+#hamburger-menu div {
+  width: 25px;
+  height: 3px;
+  background-color: #1DB954; /* Verde Spotify */
+  margin: 5px 0;
+  transition: 0.4s;
+}
+
+/* Pannello laterale */
+.side-menu {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 2000;
+  top: 0;
+  left: 0;
+  background-color: #121212; /* Nero profondo */
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  box-shadow: 2px 0px 10px rgba(0,0,0,0.5);
+}
+
+.menu-content {
+  padding: 20px;
+  color: white;
+  font-family: sans-serif;
+}
+
+.side-menu a {
+  padding: 15px 0;
+  text-decoration: none;
+  font-size: 18px;
+  color: #b3b3b3;
+  display: block;
+  transition: 0.3s;
+}
+
+.side-menu a:hover {
+  color: #1DB954;
+}
+
+.side-menu .closebtn {
+  position: absolute;
+  top: 10px;
+  right: 25px;
+  font-size: 36px;
+  color: #1DB954;
+}
+
+.disclaimer {
+  font-size: 12px;
+  color: #555;
+  margin-top: 30px;
+}
     </style>
 
 <link rel="manifest" href="manifest.json">
@@ -146,6 +209,25 @@
     <span class="close-tip" onclick="this.parentElement.style.display='none'">×</span>
     Per installare l'app: premi l'icona <strong>Condividi</strong> (quadrato con freccia) e poi <strong>"Aggiungi a Home"</strong>.
     </div>
+    <div id="hamburger-menu" onclick="toggleMenu()">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+
+<div id="side-menu" class="side-menu">
+  <a href="javascript:void(0)" class="closebtn" onclick="toggleMenu()">&times;</a>
+  <div class="menu-content">
+    <h3>Voci da La Zanzara</h3>
+    <p>La raccolta delle perle radiofoniche tratte da La Zanzara.</p>
+    <hr>
+    <a href="https://www.facebook.com/groups/vocidalazanzara" target="_blank">👥 Gruppo Facebook</a>
+    <a href="mailto:contatti@lowcuras.com">📧 Suggerisci un audio</a>
+    <a href="#" onclick="condividiApp(); return false;">🔗 Condividi l'App</a>
+    <hr>
+    <p class="disclaimer">App amatoriale non ufficiale. Tutti i diritti appartengono a Radio 24.</p>
+  </div>
+</div>
     <h1>voci da La Zanzara 🦟</h1>
 
     <div class="search-container">
@@ -536,6 +618,28 @@ function showIosTip() {
 
 // Esegui il controllo al caricamento
 window.addEventListener('load', showIosTip);
+        
+        function toggleMenu() {
+  const menu = document.getElementById("side-menu");
+  if (menu.style.width === "250px") {
+    menu.style.width = "0";
+  } else {
+    menu.style.width = "250px";
+  }
+}
+
+// Funzione Condividi che avevamo accennato
+function condividiApp() {
+  if (navigator.share) {
+    navigator.share({
+      title: 'Voci da La Zanzara',
+      text: 'Ascolta le migliori perle della Zanzara!',
+      url: window.location.href
+    });
+  } else {
+    alert("Copia il link: " + window.location.href);
+  }
+}
     </script>
 </body>
 </html>
