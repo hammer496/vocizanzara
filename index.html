@@ -736,7 +736,7 @@
             player.src = GITHUB_URL + encodeURIComponent(file);
     
             // Scriviamo il nome e creiamo un tastino separato per la catenella
-            display.innerHTML = '🔊 ' + nome + ' <a href="javascript:void(0)" style="text-decoration:none; margin-left:10px;" onclick="condividiClip(\'' + file + '\')">🔗</a>';
+            display.innerHTML = '🔊 ' + nome + ' <span style="cursor:pointer; margin-left:10px; font-size:20px;" onclick="event.stopPropagation(); condividiClip(\'' + nome.replace(/'/g, "\\'") + '\', \'' + file + '\')">🔗</span>';
     
             player.play();
         }
@@ -793,10 +793,21 @@ function condividiApp() {
     alert("Copia il link: " + window.location.href);
   }
 }
-    function condividiClip(file) {
-    const urlCompleto = GITHUB_URL + encodeURIComponent(file);
-    navigator.clipboard.writeText(urlCompleto);
-    alert("Link copiato!");
+    function condividiClip(nome, file) {
+    const urlClip = GITHUB_URL + encodeURIComponent(file);
+
+    // Se il telefono supporta la condivisione nativa (Android/iOS)
+    if (navigator.share) {
+        navigator.share({
+            title: 'Clip da La Zanzara',
+            text: 'Ascolta questa clip: ' + nome,
+            url: urlClip
+        }).catch(console.error);
+    } else {
+        // Solo se sei su PC o browser vecchio copia negli appunti
+        navigator.clipboard.writeText(urlClip);
+        alert("Link copiato negli appunti!");
+    }
 }
     </script>
 </body>
