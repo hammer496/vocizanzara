@@ -84,6 +84,9 @@
             text-align: center;
             line-height: 1.2;
             max-width: 80%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         /* Modifica solo per schermi piccoli (smartphone) */
 @media (max-width: 480px) {
@@ -730,7 +733,7 @@
             const player = document.getElementById('mainPlayer');
             const display = document.getElementById('track-display');
             player.src = GITHUB_URL + encodeURIComponent(file);
-            display.innerText = "🔊 " + nome;
+            display.innerHTML = '🔊 ' + nome + ' <span style="cursor:pointer; margin-left:10px;" onclick="condividiClip(\'' + nome.replace(/'/g, "\\'") + '\', \'' + file + '\')">🔗</span>';
             player.play();
         }
 
@@ -785,6 +788,11 @@ function condividiApp() {
   } else {
     alert("Copia il link: " + window.location.href);
   }
+}
+    function condividiClip(nome, file) {
+        const urlClip = GITHUB_URL + encodeURIComponent(file);
+        navigator.clipboard.writeText(urlClip);
+        alert("Link della clip copiato!");
 }
     </script>
 </body>
