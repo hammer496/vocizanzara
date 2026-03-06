@@ -268,6 +268,9 @@
 
     <div id="player-fixed">
         <div id="track-display">Seleziona un audio</div>
+        <button onclick="condividiAudio()" style="background:none; border:none; cursor:pointer; font-size:18px; margin-left:10px;" title="condividi clip">
+    🔗
+</button>
         <audio id="mainPlayer" controls></audio>
 
         <div style="padding: 10px 20px; margin-top: 10px; border-top: 1px solid #333; text-align: left; font-family: sans-serif;">
@@ -611,13 +614,39 @@
             `).join('');
         }
 
-        function play(file, nome) {
-            const player = document.getElementById('mainPlayer');
-            const display = document.getElementById('track-display');
-            player.src = GITHUB_URL + encodeURIComponent(file);
-            display.innerText = "🔊 " + nome;
-            player.play();
-        }
+let ultimoFileGiocato = ""; // Variabile globale
+
+function play(file, nome) {
+    ultimoFileGiocato = file; // Salva il file per la condivisione
+    const player = document.getElementById('mainPlayer');
+    const display = document.getElementById('track-display');
+    
+    // Usiamo il tuo GITHUB_URL esistente
+    player.src = GITHUB_URL + encodeURIComponent(file);
+    display.innerText = "🔊 " + nome;
+    player.play();
+}
+
+function condividiAudio() {
+    if (!ultimoFileGiocato) {
+        alert("Riproduci prima una perla!");
+        return;
+    }
+    
+    // Costruisce il link usando il tuo GITHUB_URL
+    const linkDiretto = GITHUB_URL + encodeURIComponent(ultimoFileGiocato);
+    const messaggio = "Ascolta questa perla da La Zanzara: ";
+
+    if (navigator.share) {
+        navigator.share({
+            title: 'Voci da La Zanzara',
+            text: messaggio,
+            url: linkDiretto
+        });
+    } else {
+        window.prompt("Copia e invia il link:", linkDiretto);
+    }
+}
 
         function filterAudio() {
             const val = document.getElementById('searchInput').value.toLowerCase();
