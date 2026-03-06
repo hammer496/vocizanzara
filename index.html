@@ -230,7 +230,7 @@
         <div></div>
     </div>
 
-    <h1 style="color: #1DB954; font-family: sans-serif; font-size: 27px; margin: 0 0 0 15px; font-weight: 700; text-transform: lowercase; white-space: nowrap;">
+    <h1 style="color: #1DB954; font-family: sans-serif; font-size: 23px; margin: 0 0 0 15px; font-weight: 700; text-transform: lowercase; white-space: nowrap;">
     voci da La Zanzara 🦟
 </h1>
 </div>
@@ -243,11 +243,9 @@
     
     <hr style="border: 0.5px solid #333; margin: 15px 0;">
     
-    <a href="#" onclick="condividiApp(); return false;" style="color: white; text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; font-family: sans-serif; font-size: 17px;">🔗 condividi l'app</a>
-
     <a href="https://www.facebook.com/groups/vocidalazanzara" target="_blank" style="color: white; text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; font-family: sans-serif; font-size: 17px;">👥 gruppo facebook</a>
-
-    <a href="https://www.lowcuras.com/2018/11/voci-da-la-zanzara.html" target="_blank" style="color: white; text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; font-family: sans-serif; font-size: 17px;">📣 clip su lowcuras</a>
+    
+    <a href="#" onclick="condividiApp(); return false;" style="color: white; text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; font-family: sans-serif; font-size: 17px;">🔗 condividi l'app</a>
 
     <a href="https://www.lowcuras.com" target="_blank" style="color: #1DB954; text-decoration: none; font-weight: bold; display: block; margin-bottom: 5px; font-family: sans-serif; font-size: 18px;">🌐 visita lowcuras.com</a>
     
@@ -266,16 +264,16 @@
     <div class="grid-container" id="audioGrid">
         </div>
 
-    <div id="player-fixed" style="position: fixed; bottom: 0; left: 0; width: 100%; background: #121212; padding: 15px; text-align: center; z-index: 1000; border-top: 1px solid #333;">
-    <div id="track-display" style="color: #b3b3b3; font-family: sans-serif; font-size: 14px;">
-        🔊 seleziona un audio
-    </div>
-    <audio id="mainPlayer" style="display:none;"></audio>
-</div>
+    <div id="player-fixed">
+        <div id="track-display">Seleziona un audio</div>
+        <audio id="mainPlayer" controls></audio>
 
         <div style="padding: 10px 20px; margin-top: 10px; border-top: 1px solid #333; text-align: left; font-family: sans-serif;">
     <p style="color: #555; font-size: 10px; line-height: 1.3; margin: 5px 0;">
-        Materiale audio a scopo di intrattenimento, tratto da La Zanzara di Radio 24 (proprietaria dei diritti). Per richieste di rimozione, contatta l’autore tramite il gruppo facebook.
+        Tutto il materiale audio presente viene messo a disposizione per puro spirito di divertimento. Si precisa che tale materiale è tratto dalla trasmissione La Zanzara di Radio 24, la quale ne detiene tutti i diritti.
+    </p>
+    <p style="color: #444; font-size: 10px; line-height: 1.2; margin: 0;">
+        Chiunque si senta offeso o in imbarazzo riguardo una delle clip audio può contattare l'autore tramite il gruppo facebook per richiederne la rimozione.
     </p>
 </div>
     </div>
@@ -614,39 +612,13 @@
             `).join('');
         }
 
-let ultimoFileGiocato = ""; // Variabile globale
-
-function play(file, nome) {
-    ultimoFileGiocato = file; // Salva il file per la condivisione
-    const player = document.getElementById('mainPlayer');
-    const display = document.getElementById('track-display');
-    
-    // Usiamo il tuo GITHUB_URL esistente
-    player.src = GITHUB_URL + encodeURIComponent(file);
-    display.innerText = "🔊 " + nome;
-    player.play();
-}
-
-function condividiAudio() {
-    if (!ultimoFileGiocato) {
-        alert("Riproduci prima una perla!");
-        return;
-    }
-    
-    // Costruisce il link usando il tuo GITHUB_URL
-    const linkDiretto = GITHUB_URL + encodeURIComponent(ultimoFileGiocato);
-    const messaggio = "Ascolta questa perla da La Zanzara: ";
-
-    if (navigator.share) {
-        navigator.share({
-            title: 'Voci da La Zanzara',
-            text: messaggio,
-            url: linkDiretto
-        });
-    } else {
-        window.prompt("Copia e invia il link:", linkDiretto);
-    }
-}
+        function play(file, nome) {
+            const player = document.getElementById('mainPlayer');
+            const display = document.getElementById('track-display');
+            player.src = GITHUB_URL + encodeURIComponent(file);
+            display.innerText = "🔊 " + nome;
+            player.play();
+        }
 
         function filterAudio() {
             const val = document.getElementById('searchInput').value.toLowerCase();
