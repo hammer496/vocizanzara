@@ -130,20 +130,31 @@
     cursor: pointer;
     margin-left: 10px;
 }
-        /* Stile tasto Hamburger */
+/* Stile tasto Hamburger AGGIORNATO */
 #hamburger-menu {
-  position: absolute;
-  top: 20px;
-  left: 20px;
   cursor: pointer;
-  z-index: 1000;
+  z-index: 1001; /* Un pelo più alto per sicurezza */
+  /* Abbiamo tolto top, left e position: absolute */
 }
+
 #hamburger-menu div {
   width: 25px;
   height: 3px;
-  background-color: #1DB954; /* Verde Spotify */
+  background-color: #1DB954;
   margin: 5px 0;
   transition: 0.4s;
+}
+
+/* Nuova Barra Superiore */
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #000;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #333;
 }
 
 /* Pannello laterale */
@@ -212,11 +223,17 @@
     <span class="close-tip" onclick="this.parentElement.style.display='none'">×</span>
     Per installare l'app: premi l'icona <strong>Condividi</strong> (quadrato con freccia) e poi <strong>"Aggiungi a Home"</strong>.
     </div>
+    <div class="top-bar">
     <div id="hamburger-menu" onclick="toggleMenu()">
-      <div></div>
-      <div></div>
-      <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
     </div>
+
+    <h1 style="color: #1DB954; font-family: sans-serif; font-size: 18px; margin: 0 0 0 15px; font-weight: 700; text-transform: lowercase;">
+        voci da la zanzara 🦟
+    </h1>
+</div>
 
 <div id="side-menu" class="side-menu">
   <a href="javascript:void(0)" class="closebtn" onclick="toggleMenu()">&times;</a>
@@ -239,7 +256,6 @@
     </p>
 </div>
 </div>
-    <h1>voci da La Zanzara 🦟</h1>
 
     <div class="search-container">
         <input type="search" id="searchInput" placeholder="Cerca audio o personaggio..." oninput="filterAudio()">
