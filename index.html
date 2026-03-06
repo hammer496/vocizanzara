@@ -266,18 +266,12 @@
     <div class="grid-container" id="audioGrid">
         </div>
 
-    <div id="player-fixed" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; background: #121212; border-top: 1px solid #333;">
-    
-    <div id="player-fixed" style="position: fixed; bottom: 0; left: 0; width: 100%; background: #121212; padding: 10px; display: flex; align-items: center; justify-content: center; z-index: 1000; border-top: 1px solid #333;">
-    
-    <div id="track-display" style="color: #b3b3b3; font-family: sans-serif; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;">
-        🔊 seleziona un audio
+    <div id="player-fixed" style="position: fixed; bottom: 0; left: 0; width: 100%; background: #121212; padding: 15px; text-align: center; z-index: 1000; border-top: 1px solid #333;">
+    <div id="track-display" style="color: #b3b3b3; font-family: sans-serif; font-size: 14px;">
+        🔊 Seleziona un audio
     </div>
-
-    <button onclick="condividiAudio()" style="background: none; border: none; color: #1DB954; font-size: 22px; cursor: pointer; margin-left: 15px; padding: 0; line-height: 1;">
-        &#10150;
-    </button>
-
+    <audio id="mainPlayer" style="display:none;"></audio>
+</div>
 </div>
         <audio id="mainPlayer" controls></audio>
 
