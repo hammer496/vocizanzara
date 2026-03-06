@@ -733,7 +733,9 @@
             const player = document.getElementById('mainPlayer');
             const display = document.getElementById('track-display');
             player.src = GITHUB_URL + encodeURIComponent(file);
-            display.innerHTML = '🔊 ' + nome + ' <span style="cursor:pointer; margin-left:10px;" onclick="condividiClip(\'' + nome.replace(/'/g, "\\'") + '\', \'' + file + '\')">🔗</span>';
+            // Scrive il testo e aggiunge la catenella 
+            // AGGIUNTO: onclick="event.stopPropagation()" per evitare che il click si propaghi
+            display.innerHTML = '🔊 ' + nome + ' <span style="cursor:pointer; margin-left:10px; font-size:1.2em;" onclick="event.stopPropagation(); condividiClip(\'' + nome.replace(/'/g, "\\'") + '\', \'' + file + '\')">🔗</span>';
             player.play();
         }
 
