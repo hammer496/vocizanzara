@@ -795,42 +795,43 @@ function condividiApp() {
   }
 }
     function condividiClip(nome, file) {
-    const urlClip = GITHUB_URL + encodeURIComponent(file);
+        const urlClip = GITHUB_URL + encodeURIComponent(file);
 
-    // Se il telefono supporta la condivisione nativa (Android/iOS)
-    if (navigator.share) {
-        navigator.share({
-            title: 'Clip da La Zanzara',
-            text: 'Ascolta questa clip: ' + nome,
-            url: urlClip
-        }).catch(console.error);
-    } else {
-        // Solo se sei su PC o browser vecchio copia negli appunti
-        navigator.clipboard.writeText(urlClip);
-        alert("Link copiato negli appunti!");
-    }
-        function playRandomClip() {
-    // 1. Reset della ricerca
-    const searchInput = document.getElementById('search-input');
-    if (searchInput && searchInput.value !== '') {
-        searchInput.value = '';
-        filterButtons(); // Questa è la funzione che hai già nel file
-    }
+        // Se il telefono supporta la condivisione nativa (Android/iOS)
+        if (navigator.share) {
+            navigator.share({
+                title: 'Clip da La Zanzara',
+                text: 'Ascolta questa clip: ' + nome,
+                url: urlClip
+            }).catch(console.error);
+        } else {
+            // Solo se sei su PC o browser vecchio copia negli appunti
+            navigator.clipboard.writeText(urlClip);
+            alert("Link copiato negli appunti!");
+        }
+    } // <--- Questa chiude condividiClip correttamente
 
-    // 2. Trova tutti i pulsanti delle clip
-    const buttons = document.querySelectorAll('.audio-button');
-    
-    if (buttons.length > 0) {
-        // 3. Sceglie una clip a caso
-        const randomIndex = Math.floor(Math.random() * buttons.length);
-        const targetButton = buttons[randomIndex];
+    function playRandomClip() {
+        // 1. Reset della ricerca
+        const searchInput = document.getElementById('search-input');
+        if (searchInput && searchInput.value !== '') {
+            searchInput.value = '';
+            filterButtons(); 
+        }
 
-        // 4. Va alla clip e la preme
-        targetButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        targetButton.click();
+        // 2. Trova tutti i pulsanti delle clip
+        const buttons = document.querySelectorAll('.audio-button');
+        
+        if (buttons.length > 0) {
+            // 3. Sceglie una clip a caso
+            const randomIndex = Math.floor(Math.random() * buttons.length);
+            const targetButton = buttons[randomIndex];
+
+            // 4. Va alla clip e la preme
+            targetButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetButton.click();
+        }
     }
-}
-}
-    </script>
+</script>
 </body>
 </html>
