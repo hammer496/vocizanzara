@@ -1,0 +1,814 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <link rel="icon" type="image/png" href="iconav.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Raccolta di clip audio divertenti dalla trasmissione radiofonica La Zanzara di Radio 24.">
+
+    <link rel="canonical" href="https://hammer496.github.io/vocizanzara/" />
+
+    <meta property="og:title" content="voci da La Zanzara 🦟">
+    <meta property="og:description" content="Tutte le migliori clip della trasmissione di Radio 24 a portata di click.">
+    <meta property="og:image" content="https://hammer496.github.io/vocizanzara/iconav.png">
+    <meta property="og:url" content="https://hammer496.github.io/vocizanzara/">
+    <meta property="og:type" content="website">
+    
+    <title>voci da La Zanzara</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #121212; color: white; padding: 20px; padding-bottom: 190px; margin: 0; }
+        h1 { 
+            text-align: center; 
+            color: #1DB954; /* Un bel verde acceso e moderno */
+            text-transform: none; 
+            margin-bottom: 10px; 
+            text-shadow: 0 0 10px rgba(46, 213, 115, 0.2); /* Opzionale: un leggero riflesso verde */
+            }
+        
+        /* Barra di Ricerca */
+        .search-container { max-width: 600px; margin: 20px auto; text-align: center; }
+        #searchInput { 
+            width: 100%; padding: 15px; border-radius: 30px; border: 2px solid #2f3542; 
+            font-size: 16px; background: #1e1e1e; color: white; outline: none; transition: 0.3s;
+        }
+        #searchInput:focus { border-color: #1DB954; box-shadow: 0 0 10px rgba(255, 71, 87, 0.3); }
+
+        /* Colora la X di ricerca sui browser moderni (Chrome, Edge, Safari) */
+        input[type="search"]::-webkit-search-cancel-button {
+            -webkit-appearance: none;
+            height: 1.2em;
+            width: 1.2em;
+        /* Qui usiamo una maschera per colorarla del tuo verde */
+        background-color: #1DB954; 
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E");
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E");
+        cursor: pointer;
+}
+
+        /* Griglia a Scacchi */
+        .grid-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 15px; max-width: 1200px; margin: auto; 
+        }
+        
+        .audio-card { 
+            background: #2f3542; border-radius: 12px; padding: 15px; text-align: center; 
+            cursor: pointer; transition: 0.2s; border-bottom: 4px solid #ff4757;
+            display: flex; flex-direction: column; justify-content: center; min-height: 100px;
+        }
+        .audio-card:hover { transform: translateY(-5px); background: #3e4452; border-bottom-color: #ffa502; }
+        .audio-card.hidden { display: none; }
+        
+        .tag { font-size: 14px; text-transform: uppercase; color: #ff6b81; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
+        .titolo { font-size: 14px; font-weight: 500; line-height: 1.2; }
+
+        /* Player Fisso */
+        #player-fixed { 
+            position: fixed; bottom: 0; left: 0; width: 100%; background: #1e1e1e; 
+            padding: 15px; box-shadow: 0 -5px 20px rgba(0,0,0,0.6); display: flex; 
+            flex-direction: column; align-items: center; z-index: 9999; 
+        }
+        #track-display { font-size: 15px; color: #ffa502; margin-bottom: 8px; font-weight: bold; }
+        audio { width: 90%; max-width: 600px; height: 45px; }
+        /* disclaimer */
+        .disclaimer {
+            font-size: 10px;
+            color: #888;
+            margin-top: 10px;
+            text-align: center;
+            line-height: 1.2;
+            max-width: 80%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* Modifica solo per schermi piccoli (smartphone) */
+@media (max-width: 480px) {
+    .search-container {
+            width: 100%;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr); /* Forza sempre 2 colonne */
+        gap: 8px; /* Riduce un po' lo spazio per guadagnare posto */
+    }
+    
+    .audio-card {
+        padding: 10px; /* Riduce il padding interno */
+        min-height: 80px; /* Abbassa un po' l'altezza minima */
+    }
+
+    .titolo {
+        font-size: 12px; /* Testo leggermente più piccolo per farlo stare nel quadrato */
+    }
+}
+/* Stile per il messaggio di aiuto su iPhone */
+#iphone-tool-tip {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1DB954; /* Verde Spotify */
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    z-index: 9999;
+    width: 90%;
+    max-width: 400px;
+    font-size: 14px;
+    display: none; /* Nascosto di default, appare via JS */
+    text-align: center;
+}
+
+#iphone-tool-tip::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 10px 10px 0;
+    border-style: solid;
+    border-color: #1DB954 transparent transparent;
+}
+
+.close-tip {
+    float: right;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+}
+/* Stile tasto Hamburger AGGIORNATO */
+#hamburger-menu {
+  cursor: pointer;
+  z-index: 1001; /* Un pelo più alto per sicurezza */
+  /* Abbiamo tolto top, left e position: absolute */
+}
+
+#hamburger-menu div {
+  width: 25px;
+  height: 3px;
+  background-color: #1DB954;
+  margin: 5px 0;
+  transition: 0.4s;
+}
+
+/* Nuova Barra Superiore */
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #000;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #333;
+}
+
+/* Pannello laterale */
+.side-menu {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 2000;
+  top: 0;
+  left: 0;
+  background-color: #121212; /* Nero profondo */
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  box-shadow: 2px 0px 10px rgba(0,0,0,0.5);
+    overflow-y: auto; /* Questa permette lo scroll verticale se serve */
+  max-height: 100vh; /* Assicura che non superi mai l'altezza dello schermo */
+  -webkit-overflow-scrolling: touch; /* Rende lo scorrimento fluido su iPhone/iOS */
+}
+
+.menu-content {
+  padding: 20px;
+  color: white;
+  font-family: sans-serif;
+}
+
+.side-menu a {
+  padding: 15px 0;
+  text-decoration: none;
+  font-size: 18px;
+  color: #b3b3b3;
+  display: block;
+  transition: 0.3s;
+}
+
+.side-menu a:hover {
+  color: #1DB954;
+}
+
+.side-menu .closebtn {
+  position: absolute;
+  top: 10px;
+  right: 25px;
+  font-size: 36px;
+  color: #1DB954;
+}
+
+.disclaimer {
+  font-size: 12px;
+  color: #555;
+  margin-top: 30px;
+}
+    </style>
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#1DB954">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Zanzara">
+<link rel="apple-touch-icon" href="iconav.png">
+</head>
+<body>
+    <div id="iphone-tool-tip">
+    <span class="close-tip" onclick="this.parentElement.style.display='none'">×</span>
+    Per installare l'app: premi l'icona <strong>Condividi</strong> (quadrato con freccia) e poi <strong>"Aggiungi a Home"</strong>.
+    </div>
+    <div class="top-bar">
+    <div id="hamburger-menu" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <h1 style="color: #1DB954; font-family: sans-serif; font-size: 28px; margin: 0 0 0 15px; font-weight: 700; text-transform: lowercase; white-space: nowrap;">
+    voci da La Zanzara 🦟
+</h1>
+</div>
+
+<div id="side-menu" class="side-menu">
+  <a href="javascript:void(0)" class="closebtn" onclick="toggleMenu()">&times;</a>
+  <div class="menu-content">
+    <h3 style="color: #1DB954; margin-top: 0; font-family: sans-serif; font-weight: 700;">voci da la zanzara</h3>
+    <p style="color: #b3b3b3; font-size: 14px; font-family: sans-serif; margin-bottom: 20px;">la raccolta delle perle radiofoniche.</p>
+    
+    <hr style="border: 0.5px solid #333; margin: 15px 0;">
+    
+    <a href="#" onclick="condividiApp(); return false;" style="color: white; text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; font-family: sans-serif; font-size: 17px;">🔗 condividi l'app</a>
+
+    <a href="https://www.facebook.com/groups/vocidalazanzara" target="_blank" style="color: white; text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; font-family: sans-serif; font-size: 17px;">👥 gruppo facebook</a>
+
+    <a href="https://www.lowcuras.com/2018/11/voci-da-la-zanzara.html" target="_blank" style="color: white; text-decoration: none; font-weight: bold; display: block; margin-bottom: 20px; font-family: sans-serif; font-size: 17px;">📣 clip su lowcuras</a>
+
+    <a href="https://www.lowcuras.com" target="_blank" style="color: #1DB954; text-decoration: none; font-weight: bold; display: block; margin-bottom: 5px; font-family: sans-serif; font-size: 18px;">🌐 visita lowcuras.com</a>
+    
+    <p class="disclaimer" style="color: #555; font-size: 12px; line-height: 1.4; font-family: sans-serif; margin-top: 10px; text-align: left;">
+        App amatoriale indipendente e non ufficiale. Tutti i diritti appartengono a Radio 24.
+    </p>
+</div>
+</div>
+
+    <div class="search-container">
+        <input type="search" id="searchInput" placeholder="Cerca audio o personaggio..." oninput="filterAudio()">
+    </div>
+
+    <div class="grid-container" id="audioGrid">
+        </div>
+
+    <div id="player-fixed">
+        <div id="track-display">🔊 seleziona un audio</div>
+        <audio id="mainPlayer" controls></audio>
+
+        <div style="padding: 10px 20px; margin-top: 10px; border-top: 1px solid #333; text-align: left; font-family: sans-serif;">
+    <p style="color: #555; font-size: 10px; line-height: 1.3; margin: 5px 0;">
+        Materiale audio a scopo di intrattenimento, tratto da La Zanzara di Radio 24 (proprietaria dei diritti). Per richieste di rimozione, contatta l’autore tramite il gruppo facebook.
+    </p>
+</div>
+    </div>
+
+    <script>
+        const GITHUB_URL = "https://hammer496.github.io/vocizanzara/audio/";
+
+        // Database iniziale (Primi 25 file incrociati)
+        const audioList = [
+            { t: "Demone Scimmia", n: "tutto è droga", f: "tutto_e_droga.mp3" },
+            { t: "Alessio Lizzo", n: "ridata", f: "ridata.mp3" },
+            { t: "Pino Scotto Parenzo", n: "Pino Scotto contro Parenzo", f: "Pino_Scotto.mp3" },
+            { t: "varie", n: "erbone dance", f: "erbone_dance.mp3" },
+            { t: "Alessio Lizzio", n: "pazzo per gesù", f: "pazzo_per_gesu.mp3" },
+            { t: "varie", n: "naturalmente", f: "naturalmente.mp3" },
+            { t: "varie", n: "messicanone", f: "messicanone.mp3" },
+            { t: "varie", n: "mercanteggia", f: "mercanteggia.mp3" },
+            { t: "Trump", n: "illegally", f: "illegally.mp3" },
+            { t: "grillino palermitano", n: "dedica", f: "dedica_David.mp3" },
+            { t: "parrucchiera siciliana", n: "ho strappato l'INPS", f: "ho_strappato_l_INPS.mp3" },
+            { t: "varie", n: "un branco di truffatori, l'INPS", f: "truffatori_INPS.mp3" },
+            { t: "Semproni", n: "Semproni e la nerchia", f: "semproni.mp3" },
+            { t: "Pappalardo", n: "Pappalardo contro Macron", f: "Pappalardo_vs_Macron.mp3" },
+            { t: "Mario Giordano", n: "ruspa ruspa ruspa", f: "ruspa_ruspa_ruspa.mp3" },
+            { t: "varie", n: "e sti cazzi", f: "e_sti_cazzi.mp3" },
+            { t: "Parenzo", n: "ciro", f: "ciro.mp3" },
+            { t: "Cruciani", n: "Cruciani ricchione", f: "cruciani_ricchione.mp3" },
+            { t: "varie", n: "signora vs sindaco Castellammare di Stabia", f: "signora_vs_sindaco.mp3" },
+            { t: "Mario Giordano", n: "ruspa e taser", f: "ruspa_e_taser.mp3" },
+            { t: "Mario Giordano", n: "verbo ruspare", f: "verbo_ruspare.mp3" },
+            { t: "varie", n: "la tipa del Tefaf", f: "tipa_del_tefaf.mp3" },
+            { t: "Mario Giordano", n: "la legge è sacra", f: "la_legge_e_sacra.mp3" },
+            { t: "Demone Scimmia", n: "curriculum droghe", f: "curriculum_demone.mp3" },
+            { t: "Richard Benson", n: "chi caccia i soldi", f: "chi_caccia_i_soldi.mp3" },
+            { t: "Richard Benson", n: "Aò, c'ha pure ragione questo", f: "cha_pure_ragione.mp3" },
+            { t: "Richard Benson", n: "Non sei più rock? Non sei più metal?", f: "non_sei_piu_rock.mp3" },
+            { t: "Valentina Nappi", n: "loro non credono", f: "valentina_nappi_loro.mp3" },
+            { t: "canzone", n: "canzone neomelodica", f: "colazione_neomelodica.mp3" },
+            { t: "varie", n: "guardala bene", f: "guardala_bene.mp3" },
+            { t: "Zaia", n: "Zaia chiama i veneti", f: "zaia.mp3" },
+            { t: "Spatalino", n: "è novità", f: "Spatalino_novita.mp3" },
+            { t: "varie", n: "Medjugori", f: "apparizioni.mp3" },
+            { t: "Sanremo Bugo Morgan", n: "Bugo e Morgan", f: "Bugo_Morgan.mp3" },
+            { t: "Cruciani", n: "Cruciani vs Mario", f: "Cruciani_vs_Mario.mp3" },
+            { t: "Barisoni", n: "Barisoni gay", f: "Barisoni_gay.mp3" },
+            { t: "covid", n: "dovete stare a casa", f: "state_a_casa.mp3" },
+            { t: "Briatore", n: "Briatore e la tachipirina", f: "Briatore_tachipirina.mp3" },
+            { t: "Paola Saulino", n: "Paola Saulino ha voglia di...", f: "Saulino.mp3" },
+            { t: "Meluzzi", n: "Alessandro Meluzzi e la consacrazione", f: "Meluzzi_invocazione.mp3" },
+            { t: "Mauro da Mantova", n: "donazione Mauro da Mantova", f: "Donazione_Mauro.mp3" },
+            { t: "Cruciani", n: "le moltiplicazioni", f: "le_moltiplicazioni.mp3" },
+            { t: "Parenzo", n: "no no no no grazie", f: "no_grazie.mp3" },
+            { t: "Efe Bal", n: "Efe Bal ed il mal di gola", f: "efe_bal.mp3" },
+            { t: "Richard Benson", n: "Richard Benson e Pippo Baudo", f: "Benson_Pippo_Baudo.mp3" },
+            { t: "Pappalardo", n: "Pappalardo ed il segnale acustico", f: "Pappalardo_segnale.mp3" },
+            { t: "Sinatra Parenzo Cruciani", n: "Cruciani e Parenzo vs avvocato Sinatra", f: "avv_sinatra.mp3" },
+            { t: "Richard Benson", n: "Richard Benson e i Metallica", f: "benson_metallica.mp3" },
+            { t: "Valentina Nappi", n: "Le mutandine di Valentina Nappi", f: "le_mutandine.mp3" },
+            { t: "Richard Benson", n: "Richard Benson e la telefonata", f: "Benson_telefonata.mp3" },
+            { t: "varie", n: "e mi faccio una pugnetta", f: "pugnetta.mp3" },
+            { t: "canzone", n: "cin cin", f: "cincin.mp3" },
+            { t: "Cruciani", n: "spot Italia", f: "spot Italia Cruciani.mp3" },
+            { t: "Cruciani Gomorra", n: "Cruciani vs napoletani", f: "Cruciani_gomorra.mp3" },
+            { t: "Emilia Clementi", n: "Emilia Clementi iban", f: "Pina_Pitone.mp3" },
+            { t: "Emilia Clementi", n: "Emilia Clementi difende la sua commercialista", f: "Emilia_Clementi_tiè.mp3" },
+            { t: "covid", n: "Amò quanto mi ami, tutta la vita!", f: "quanto_mi_ami.mp3" },
+            { t: "Trump", n: "50 cent drinquenti arrabbiato", f: "50cent_Trump.mp3" },
+            { t: "Santanché", n: "fatti i cazzi tuoi", f: "rom_santanche.mp3" },
+            { t: "Meluzzi", n: "Noi, Alessandro I", f: "noi.mp3" },
+            { t: "Spatalino", n: "fratelli siamesi", f: "siamesi.mp3" },
+            { t: "Spatalino", n: "Spatalino verso sconnesso", f: "islamica.mp3" },
+            { t: "varie", n: "quando sono al casello di Carisio", f: "Carisio.mp3" },
+            { t: "Richard Benson", n: "Richard Benson e avvertenza", f: "carattere.mp3" },
+            { t: "Paola Saulino", n: "Paola Saulino e la codina", f: "codina.mp3" },
+            { t: "varie", n: "i rosari", f: "rosari.mp3" },
+            { t: "ingegner Negri", n: "Via, da questo canale", f: "via.mp3" },
+            { t: "Capezzone", n: "numero uno, secondo, terzo", f: "123.mp3" },
+            { t: "varie", n: "dica dica", f: "dica_dica.mp3" },
+            { t: "Cruciani", n: "Cruciani! Cruciani! Cruciani!", f: "Daniele_Cruciani.mp3" },
+            { t: "varie", n: "sento le voci", f: "Sento_le_voci.mp3" },
+            { t: "Emilia Clementi", n: "io potevo essere stipendiata", f: "stipendiata.mp3" },
+            { t: "Pappalardo", n: "il generale Pappalardo incontra Draghi", f: "moneta.mp3" },
+            { t: "Richard Benson", n: "noo è possibilissimo", f: "possibilissimo.mp3" },
+            { t: "covid", n: "non ce n'è covid", f: "no_covid.mp3" },
+            { t: "varie", n: "menagramo", f: "menagramo.mp3" },
+            { t: "Spatalino", n: "gli scooter della Polizia", f: "spatalino_scooter.mp3" },
+            { t: "canzone", n: "inno d'Italia", f: "inno_Italia.mp3" },
+            { t: "Carmela", n: "offerta speciale", f: "prostituta_parioli1.mp3" },
+            { t: "Carmela", n: "successo per Parenzo", f: "Carmela2.mp3" },
+            { t: "varie", n: "shot them dead", f: "shot_them.mp3" },
+            { t: "Carmela", n: "telefonata a Parenzo", f: "telefonata_carmela.mp3" },
+            { t: "varie", n: "appello degli ascoltatori", f: "appello.mp3" },
+            { t: "Cruciani", n: "che squallore d'uomo", f: "squallore.mp3" },
+            { t: "Cruciani", n: "saluti da Catanzaro", f: "intuu.mp3" },
+            { t: "Cruciani", n: "ti mando un vocale", f: "vocale.mp3" },
+            { t: "Spatalino", n: "Spatalino adventure", f: "spatalino_story.mp3" },
+            { t: "Parenzo", n: "Parenzo rifiuta", f: "Parenzo_rifiuta.mp3" },
+            { t: "Cruciani", n: "The End (?)", f: "the_end.mp3" },
+            { t: "Cruciani", n: "plug di Sara Slave", f: "plug_sara_slave.mp3" },
+            { t: "Ester", n: "buonasera", f: "ester.mp3" },
+            { t: "Parenzo", n: "la verità su Parenzo", f: "verita_parenzo.mp3" },
+            { t: "Parenzo", n: "miao", f: "miao.mp3" },
+            { t: "Parenzo", n: "morte in diretta", f: "morte_Parenzo.mp3" },
+            { t: "Parenzo", n: "godimento?", f: "Parenzo_gode.mp3" },
+            { t: "canzone", n: "CPC", f: "Nuovo collutorio Mentadent con tecnologia CPC.mp3" },
+            { t: "intro", n: "questo programma", f: "questo_programma.mp3" },
+            { t: "Petrella", n: "Gates", f: "Gates.mp3" },
+            { t: "Pappalardo Draghi", n: "Pappalardo e Draghi", f: "PappalardoDraghi.mp3" },
+            { t: "Parenzo", n: "si si si", f: "sisisi.mp3" },
+            { t: "Parenzo Sgarbi", n: "Sgarbi vs Parenzo", f: "sgarbi_parenzo.mp3" },
+            { t: "Brasiliano", n: "wuuu", f: "wuuu.mp3" },
+            { t: "Petrella", n: "bastardi", f: "bastardi.mp3" },
+            { t: "varie", n: "scrivete", f: "scrivete.mp3" },
+            { t: "Demone Scimmia", n: "meglio camionista o Gottardo?", f: "camionista_gottardo.mp3" },
+            { t: "Parenzo", n: "l'ha detto Draghi", f: "lhadettodraghi.mp3" },
+            { t: "Petrella", n: "intervista", f: "petrella.mp3" },
+            { t: "Cruciani", n: "italiani!", f: "italiani.mp3" },
+            { t: "Donato da Varese", n: "cosa?", f: "cosa.mp3" },
+            { t: "Parenzo", n: "si si giusto", f: "sisigiusto.mp3" },
+            { t: "Parenzo Freccero", n: "nuovo format", f: "format.mp3" },
+            { t: "varie", n: "il Gabibbo il Gabibbo il Gabibbo", f: "gabibbo.mp3" },
+            { t: "Meluzzi", n: "orgasmo by Meluzzi", f: "orgasmo.mp3" },
+            { t: "Parenzo Feltri", n: "Feltri approved", f: "bravissimo.mp3" },
+            { t: "Petrella", n: "basta!", f: "basta.mp3" },
+            { t: "Salvini", n: "Buongiorno! Buonasera!", f: "buongiornobuonasera.mp3" },
+            { t: "rider", n: "ue ue", f: "ueue.mp3" },
+            { t: "Mauro da Mantova", n: "vitalizio Bacchelli", f: "petizione.mp3" },
+            { t: "intro", n: "intro definitiva", f: "intro_definitiva.mp3" },
+            { t: "Parenzo", n: "ottimo", f: "ottimo.mp3" },
+            { t: "Draghi", n: "si ad entrambe le domande", f: "sì ad entrambe le domande.mp3" },
+            { t: "varie", n: "il Senato approva", f: "bel_messaggio.mp3" },
+            { t: "Parenzo", n: "Parenzo Radio Londra", f: "appello_Parenzo.mp3" },
+            { t: "intro", n: "intro definitiva (da secondo posto)", f: "intro2.mp3" },
+            { t: "Parenzo", n: "Parenzo sniffata", f: "Parenzo_sniffa.mp3" },
+            { t: "Demone Scimmia", n: "urlo Demone", f: "urlo_demone_mauro.mp3" },
+            { t: "varie", n: "alzabandiera", f: "alzabandiera.mp3" },
+            { t: "Mario Giordano", n: "Gruber / Giordano", f: "Gruber_Giordano.mp3" },
+            { t: "varie", n: "vaccino romano", f: "vaccino_romano.mp3" },
+            { t: "Barisoni Ester", n: "Barisoni", f: "Barisoni.mp3" },
+            { t: "Parenzo", n: "camerata presente", f: "camerata_presente.mp3" },
+            { t: "canzone", n: "a tutto rap", f: "canzone_rap.mp3" },
+            { t: "Parenzo", n: "vergogna vergogna vergogna", f: "vergogna.mp3" },
+            { t: "covid", n: "riassunto COVID", f: "riassunto_covid.mp3" },
+            { t: "intro", n: "va ora in onda", f: "ortolano.mp3" },
+            { t: "troie", n: "troie in diretta", f: "troieindiretta.mp3" },
+            { t: "Sgarbi", n: "il comizio di Latina", f: "comizio.mp3" },
+            { t: "troie", n: "troie in diretta 2", f: "troieindiretta2.mp3" },
+            { t: "Parenzo", n: "no green pass", f: "no_green_pass.mp3" },
+            { t: "Parenzo", n: "ninna nanna", f: "ninna_nanna.mp3" },
+            { t: "Cruciani", n: "mascalzone", f: "mascalzone.mp3" },
+            { t: "intro", n: "intro definitiva (terzo posto)", f: "intro3.mp3" },
+            { t: "Donato da Varese", n: "cosa?(2)", f: "cosa (1).mp3" },
+            { t: "Salvini", n: "stancotto", f: "stancotto.mp3" },
+            { t: "troie", n: "troie in diretta 3", f: "troieindiretta3.mp3" },
+            { t: "Pappalardo", n: "e stai zitto Pino!", f: "zitto_Pino.mp3" },
+            { t: "intro", n: "intro definitiva (quarto posto)", f: "intro4.mp3" },
+            { t: "intro", n: "appello", f: "appello_miserabili.mp3" },
+            { t: "varie", n: "certo", f: "certo.mp3" },
+            { t: "Cruciani", n: "annuncio ferroviario", f: "annuncio_ferroviario.mp3" },
+            { t: "Brosio", n: "è una vergogna", f: "una_vergogna.mp3" },
+            { t: "intro", n: "intro definitiva (quinto posto)", f: "intro5.mp3" },
+            { t: "Parenzo", n: "nooo", f: "noooo.mp3" },
+            { t: "Parenzo", n: "il bottone rosso", f: "bottone_rosso.mp3" },
+            { t: "intro", n: "zanzaspotting", f: "zanzaspotting.mp3" },
+            { t: "intro", n: "intro definitiva (sesto posto)", f: "intro6.mp3" },
+            { t: "Richard Benson", n: "il demonio", f: "demonio.mp3" },
+            { t: "intro", n: "La Zanzara Fight Club", f: "fight_club.mp3" },
+            { t: "Parenzo", n: "Parenzo stai zitto", f: "parenzo_zitto.mp3" },
+            { t: "Michela Morellato", n: "Covid it's over", f: "coviditsover.mp3" },
+            { t: "Donato da Varese", n: "Voglio Ratzinger", f: "voglio_ratzinger.mp3" },
+            { t: "Meluzzi", n: "La querela di Meluzzi", f: "meluzzi_querela.mp3" },
+            { t: "Spatalino", n: "perché!", f: "perche.mp3" },
+            { t: "Scek Nur", n: "risata Scek Nur", f: "risata_scek.mp3" },
+            { t: "Richard Benson", n: "la droga leggera", f: "la_droga_leggera.mp3" },
+            { t: "Salvini", n: "che squadra siamo bro!", f: "bro.mp3" },
+            { t: "Parenzo", n: "esequie sul lungotevere", f: "esequie.mp3" },
+            { t: "Richard Benson", n: "tributo Richard Benson", f: "tributo_benson.mp3" },
+            { t: "Parenzo", n: "Astana no!", f: "astana.mp3" },
+            { t: "Cruciani", n: "basta mascherine!", f: "no_mascherine.mp3" },
+            { t: "Moggi", n: "ma vai a cagare vai", f: "moggi.mp3" },
+            { t: "Cruciani", n: "Piantedosi?", f: "piantedosi_presente.mp3" },
+            { t: "Spatalino", n: "è ora di finiamola!", f: "finiamola.mp3" },
+            { t: "Efe Bal", n: "Meloniii", f: "meloni.mp3" },
+            { t: "Parenzo", n: "Parenzo vs Bezos", f: "ParenzovsBesos.mp3" },
+            { t: "Parenzo", n: "ordine telefonico hotel", f: "Parenzo_cocktail.mp3" },
+            { t: "Giuseppe Ricci", n: "adesso mi avete rotto i...", f: "Mi avete rotto.mp3" },
+            { t: "Parenzo", n: "pronto avvocato?", f: "Parenzo_avvocato.mp3" },
+            { t: "Parenzo", n: "sexy", f: "Sexy_Parenzo.mp3" },
+            { t: "Spatalino", n: "cash cash cash", f: "cashcashcash.mp3" },
+            { t: "Spatalino", n: "Parenzo non ha tempo", f: "non_ha_tempo.mp3" },
+            { t: "Giuseppe Ricci", n: "Movimento Italia", f: "Programma_Movimento_Italia.mp3" },
+            { t: "Matrella Parenzo", n: "Parenzo!", f: "parenzo.mp3" },
+            { t: "varie", n: "che palle questo", f: "chepalle.mp3" },
+            { t: "Anna da Roma", n: "è una merda", f: "merda.mp3" },
+            { t: "Parenzo", n: "Parenzo... rutto", f: "parenzo_rutto.mp3" },
+            { t: "Parenzo", n: "il ghiaccio dello spritzino", f: "parenzo_ghiaccio.mp3" },
+            { t: "Giuseppe Ricci Cruciani", n: "Cruciani non si lava", f: "Cruciani_non_si_lava.mp3" },
+            { t: "Pasquale Lino Romano Parenzo", n: "il campanellino", f: "campanellino.mp3" },
+            { t: "Schlein", n: "è cambiato il clima", f: "ecambiatoilclima.mp3" },
+            { t: "canzone", n: "tarantella napoletana", f: "tarantella.mp3" },
+            { t: "Parenzo Balivo", n: "capito il circonciso?", f: "circonciso.mp3" },
+            { t: "Brindisi Lavrov", n: "signor ministro grazie", f: "signorministrograzie.mp3" },
+            { t: "Bambalau", n: "Bambalau", f: "Bambalau.mp3" },
+            { t: "Scek Nur Parenzo", n: "Nur vs Parenzo", f: "Nur_vs_Parenzo.mp3" },
+            { t: "Porro", n: "Toc Toc", f: "TOC TOC.mp3" },
+            { t: "Cruciani", n: "Cruci", f: "cruci.mp3" },
+            { t: "Matrella", n: "si si si!", f: "sisi.mp3" },
+            { t: "Wanna Marchi", n: "ciao ciao", f: "ciaociao.mp3" },
+            { t: "Giuseppe Ricci", n: "la radio ve la faccio chiudere io", f: "chiudere_radio.mp3" },
+            { t: "Spatalino", n: "chi è 'sta ggente", f: "chiestagente.mp3" },
+            { t: "varie Beatrice", n: "non rompere i coglioni", f: "non_rompere.mp3" },
+            { t: "Spatalino", n: "chiudi! (lungo)", f: "chiudi_lungo.mp3" },
+            { t: "Spatalino", n: "chiudi! (corto)", f: "chiudi_corto.mp3" },
+            { t: "Spatalino", n: "viva la figa!", f: "viva la figa.mp3" },
+            { t: "Berlusconi", n: "poveri comunisti!", f: "poveri_comunisti.mp3" },
+            { t: "Spatalino", n: "ah ah ah ah", f: "ahahahah.mp3" },
+            { t: "Spatalino", n: "un bacetto", f: "bacetto.mp3" },
+            { t: "varie", n: "i vulcani...", f: "i_vulcani.mp3" },
+            { t: "Lacerenza", n: "nitrito", f: "nitrito.mp3" },
+            { t: "Clizia De Rossi", n: "vienimi dietro", f: "vienimi_dietro.mp3" },
+            { t: "Tony da Milano Cruciani", n: "azzurro", f: "Tony_azzurro.mp3" },
+            { t: "Richard Benson", n: "non mi interessa", f: "non_mi_interessa.mp3" },
+            { t: "Nevio lo stirato", n: "è regolare", f: "regolare.mp3" },
+            { t: "Capezzone", n: "fammelo dire", f: "fammelo_dire.mp3" },
+            { t: "Filippo Champagne", n: "attention please", f: "attention_please.mp3" },
+            { t: "Parenzo Vannacci", n: "chiedilo a vannacci", f: "chiedilo_a_vannacci.mp3" },
+            { t: "Orsini", n: "dottore", f: "dottore.mp3" },
+            { t: "Spatalino", n: "vergognati", f: "vergognati.mp3" },
+            { t: "Parenzo", n: "Soumahoro miglior italiano", f: "Parenzo Soumahoro.mp3" },
+            { t: "Giorgia Meloni", n: "Giorgia Meloni speaking", f: "Giorgia Meloni speaking.mp3" },
+            { t: "Cruciani Naf", n: "Crucianiii", f: "crucianiii.mp3" },
+            { t: "Carmela", n: "ahah", f: "ahah.mp3" },
+            { t: "Mario Giordano", n: "dammi 'sto numero", f: "numero.mp3" },
+            { t: "Cruciani Del Debbio", n: "Giuseppe basta!", f: "Giuseppe_basta.mp3" },
+            { t: "Cruciani", n: "io non mi sento colpevole", f: "non_colpevole.mp3" },
+            { t: "Spatalino", n: "mamma mia", f: "mamma_mia.mp3" },
+            { t: "Mieli", n: "ascoltatori della Zanzara?", f: "elenco_ascoltatori.mp3" },
+            { t: "Franco da Mantova", n: "non mi ricordo più", f: "non mi ricordo.mp3" },
+            { t: "Richard Benson", n: "ma che cazzo me ne frega", f: "sanremo.mp3" },
+            { t: "Spatalino", n: "Africa, Africa", f: "africa_africa.mp3" },
+            { t: "Del Debbio", n: "bubububu", f: "del debbio no bbubbu.mp3" },
+            { t: "Cruciani", n: "ti porto in processo mascalzone", f: "ti_porto_in_processo.mp3" },
+            { t: "Tamburini", n: "chiamate il medico!", f: "chiamate_il_medico.mp3" },
+            { t: "Vanoli", n: "un bel bicchiere di urina", f: "bicchiere_urina.mp3" },
+            { t: "De Luca", n: "cose ridicole", f: "cose_ridicole.mp3" },
+            { t: "Parenzo", n: "via via via", f: "viaviavia.mp3" },
+            { t: "Milei", n: "afuera", f: "afuera.mp3" },
+            { t: "intro", n: "linguaggio scurrile", f: "parolacce.mp3" },
+            { t: "varie ambasciata russa", n: "può richiamare domani mattina", f: "ambasciata_russa.mp3" },
+            { t: "Parenzo ambasciata russa", n: "nomi trasmessi all'ambasciata russa (?)", f: "nomi_ambasciata.mp3" },
+            { t: "canzone ambasciata russa", n: "musichetta ambasciata russa", f: "musichetta.mp3" },
+            { t: "intro Barisoni Cruciani", n: "Barisoni è diventato vicepresidente", f: "vicepresidente.mp3" },
+            { t: "Papa", n: "negosiare", f: "negosiare.mp3" },
+            { t: "Tamburini", n: "fermi tutti un cazzo", f: "fermi_tutti.mp3" },
+            { t: "Vannacci", n: "grazie", f: "grazie.mp3" },
+            { t: "Spatalino", n: "Netanyahu", f: "Netanyahu.mp3" },
+            { t: "Anna da Roma", n: "frocioneee", f: "frocioneee.mp3" },
+            { t: "Scek Nur", n: "risata Scek Nur", f: "risata_ritmata.mp3" },
+            { t: "Tamburini", n: "con assoluta determinazione", f: "assoluta_determinazione.mp3" },
+            { t: "Parenzo", n: "posso?", f: "posso.mp3" },
+            { t: "Del Debbio", n: "eh", f: "del debbio eh.mp3" },
+            { t: "Cruciani", n: "sei lento", f: "sei_lento.mp3" },
+            { t: "Parenzo Freccero", n: "prime time", f: "prime_time.mp3" },
+            { t: "Giuseppe Ricci", n: "tossetta Ricci", f: "tossetta_ricci.mp3" },
+            { t: "Mieli Cruciani", n: "Cruciani è un genio", f: "cruciani_genio.mp3" },
+            { t: "Brasiliano", n: "municipale no", f: "municipale_no.mp3" },
+            { t: "Parenzo", n: "il più schifoso", f: "piu_schifoso.mp3" },
+            { t: "canzone", n: "prima nota tarantella", f: "tarantella_nota.mp3" },
+            { t: "Giuseppe Ricci", n: "bravo", f: "bravo.mp3" },
+            { t: "Matrella", n: "oddio", f: "oddio.mp3" },
+            { t: "intro", n: "che piace la storia", f: "piace_la_storia.mp3" },
+            { t: "Mario Giordano", n: "lo diciamo qui", f: "diciamo_qui.mp3" },
+            { t: "Parenzo Porro", n: "Porroooo", f: "porrooo.mp3" },
+            { t: "Wanna Marchi", n: "perché i coglioni vanno inculati", f: "perche_vanno.mp3" },
+            { t: "Parenzo", n: "Parenzo e il dito", f: "dito_in_culo.mp3" },
+            { t: "Parenzo", n: "ciaka ciaka bum bum", f: "ciaka_bum.mp3" },
+            { t: "Spatalino", n: "chiudilo!", f: "chiudilo.mp3" },
+            { t: "Matrella covid", n: "sono veleno", f: "sono_veleno.mp3" },
+            { t: "Barisoni", n: "eh no", f: "eh_no.mp3" },
+            { t: "Giorgia Meloni Del Debbio", n: "zitto!", f: "zitto.mp3" },
+            { t: "Berlusconi", n: "annuncio aeroporto", f: "annuncio_aeroporto.mp3" },
+            { t: "Marco Violi", n: "è mussolinho", f: "mussolinho.mp3" },
+            { t: "Parenzo", n: "evviva il borseggio", f: "evviva_borseggio.mp3" },
+            { t: "Spatalino", n: "faaait faaait", f: "faaait.mp3" },
+            { t: "varie", n: "mugugno", f: "mugugno.mp3" },
+            { t: "Scek Nur", n: "vaff... zanzarosi", f: "vaff_zanzarosi.mp3" },
+            { t: "Carmela", n: "a te ti piace cazzo", f: "ti_piace_caz.mp3" },
+            { t: "Spatalino", n: "Egonu", f: "egonu.mp3" },
+            { t: "Marco Violi", n: "e Logic Feo", f: "logic_feo.mp3" },
+            { t: "Marco Violi", n: "ricchione", f: "ricchione.mp3" },
+            { t: "Feltri", n: "a pucchiac", f: "pucchiac.mp3" },
+            { t: "Anna da Roma", n: "finalmente una gioia", f: "anna_gode.mp3" },
+            { t: "Salvini", n: "grazie", f: "Salvini_grazie.mp3" },
+            { t: "Feltri", n: "povero negro", f: "povero_negro.mp3" },
+            { t: "Papa", n: "è un peccato grave", f: "peccato_grave.mp3" },
+            { t: "Richard Benson", n: "sei cambiata", f: "sei_cambiata.mp3" },
+            { t: "Spatalino", n: "Topo gigio", f: "Topo gigio.mp3" },
+            { t: "Spatalino Parenzo", n: "ciao Topo gigio", f: "ciao Topo Gigio.mp3" },
+            { t: "Spatalino Parenzo", n: "ebbro", f: "Ebbro.mp3" },
+            { t: "Cruciani", n: "ma in quale città?", f: "Ma in quale citta.mp3" },
+            { t: "Feltri", n: "pistola stai zitto!", f: "pistola_zitto.mp3" },
+            { t: "Del Debbio", n: "che guardi, che cazzo guardi", f: "che_guardi.mp3" },
+            { t: "Del Debbio Porro", n: "niente popò di meno", f: "Del_Debbio_Porro.mp3" },
+            { t: "Cruciani", n: "nostra colonna", f: "nostra_colonna.mp3" },
+            { t: "De Mari", n: "sesso anale tanta tanta paura", f: "de mari sesso anale.mp3" },
+            { t: "Feltri Del Debbio", n: "posso dire la verità", f: "posso_dire.mp3" },
+            { t: "Adinolfi", n: "vi piace un mondo così?", f: "Mario Adinolfi a voi piace un mondo così.mp3" },
+            { t: "Parenzo", n: "boldrino Parenzo", f: "boldrino.mp3" },
+            { t: "intro", n: "Mario vs Cruciani", f: "mario_vs_cruciani.mp3" },
+            { t: "Barisoni", n: "ma lavorare mai è", f: "ma_lavorare_mai.mp3" },
+            { t: "Salvini", n: "no no no no", f: "NoNoNoNo.mp3" },
+            { t: "Boldrini", n: "assolutamente imbarazzante", f: "assolutamente_imbarazzante.mp3" },
+            { t: "Spatalino", n: "cibo no buono", f: "Cibo_no_buono.mp3" },
+            { t: "canzone", n: "breaking news", f: "breaking_news.mp3" },
+            { t: "Pina su Parenzo", n: "si però ma", f: "si_pero_ma.mp3" },
+            { t: "Parenzo", n: "i Pinguini Tattici nucleari danno ragione", f: "ragione_parenzo.mp3" },
+            { t: "Parenzo", n: "ma che contributo è?", f: "che_contributo.mp3" },
+            { t: "Cruciani Barbuto", n: "Azzurra Noemi Barbuto chiama il conduttore?", f: "barbuto_cruciani.mp3" },
+            { t: "canzone", n: "sigla di Forum", f: "sigla_forum.mp3" },
+            { t: "Tony Effe", n: "Paolo Mieli legge Tony Effe", f: "Mieli_Tony_Effe.mp3" },
+            { t: "Parenzo", n: "Danielina Santanché", f: "danielina_cara.mp3" },
+            { t: "Parenzo Barbuto", n: "il sesto libro!", f: "sesto_libro.mp3" },
+            { t: "Papa", n: "la possibilità c'è", f: "possibilita.mp3" },
+            { t: "varie Parente", n: "mugugno 2", f: "mugugno2.mp3" },
+            { t: "varie Tamburello", n: "la Renault nella fronte", f: "la_renault.mp3" },
+            { t: "varie Rita De Crescenzo", n: "Manuele!", f: "manuele.mp3" },
+            { t: "Mario Giordano", n: "QR Code", f: "qr_code.mp3" },
+            { t: "Porro", n: "a destra!", f: "a_destra.mp3" },
+            { t: "Spatalino", n: "gayyy", f: "Gayyy.mp3" },
+            { t: "varie Rita De Crescenzo", n: "fai l'amore?", f: "fai_l_amore.mp3" },
+            { t: "Spatalino", n: "maiale", f: "maiale.mp3" },
+            { t: "varie Montaruli", n: "bau bau", f: "baubau.mp3" },
+            { t: "Wanna Marchi", n: "d'accordo?", f: "daccordo.mp3" },
+            { t: "Feltri", n: "voglia di bestemmiare", f: "voglia_bestemmiare.mp3" },
+            { t: "Spatalino", n: "Macroon", f: "macroon.mp3" },
+            { t: "Paolo Sizzi", n: "la retta via", f: "retta_via.mp3" },
+            { t: "varie Rita De Crescenzo", n: "italiani!", f: "italiani_de_crescenzo.mp3" },
+            { t: "varie Rita De Crescenzo", n: "contatta La Zanzara", f: "numeri_De_Crescenzo.mp3" },
+            { t: "Trump", n: "drill baby drill", f: "drill_baby_drill.mp3" },
+            { t: "Wanna Marchi", n: "andate a fanculo!", f: "marchi_fanculo.mp3" },
+            { t: "varie Annarita Briganti", n: "si toro si", f: "si_toro_si.mp3" },
+            { t: "Red Ronnie", n: "mamma mia ragazzi", f: "red_mamma_mia.mp3" },
+            { t: "Red Ronnie", n: "verso di liberazione", f: "red_libero.mp3" },
+            { t: "Zanasi Parenzo", n: "raccogli la merda stronzo", f: "raccogli.mp3" },
+            { t: "Capezzone Parenzo", n: "hai rotto il cazzo", f: "hai rotto il cazzo.mp3" },
+            { t: "varie", n: "presente!", f: "presente.mp3" },
+            { t: "Del Debbio", n: "ma andate a fare in culo", f: "del_debbio_vaffa.mp3" },
+            { t: "Maurizia Paradiso", n: "la vita e la saponetta", f: "paradiso_vita.mp3" },
+            { t: "Maurizia Paradiso", n: "essere lasciati", f: "paradiso_lasciato.mp3" },
+            { t: "Maurizia Paradiso", n: "ospite Ruggiero", f: "paradiso_ruggiero.mp3" },
+            { t: "Maurizia Paradiso", n: "rivoglio il pisello", f: "paradiso_pisello.mp3" },
+            { t: "Maurizia Paradiso Parenzo", n: "nano circonciso", f: "paradiso_circonciso.mp3" },
+            { t: "Maurizia Paradiso", n: "non sopporto gli uomini", f: "paradiso_uomini.mp3" },
+            { t: "Maurizia Paradiso", n: "nooooo", f: "paradiso_nooo.mp3" },
+            { t: "Trump", n: "kissing my ass", f: "kissing_my_ass.mp3" },
+            { t: "Calenda", n: "ma vaffanculo", f: "calenda_vaffa.mp3" },
+            { t: "Wanna Marchi", n: "vada via!", f: "vada_via.mp3" },
+            { t: "Spatalino", n: "viva il cazzo!", f: "viva_il_cazzo.mp3" },
+            { t: "Lacerenza", n: "vai cavallo", f: "Cavallo lacerenza.mp3" },
+            { t: "SteTrading", n: "mi sembra giusto", f: "mi_sembra_giusto.mp3" },
+            { t: "Mario Giordano", n: "Marcooo", f: "marcooo.mp3" },
+            { t: "Edward Luttwak", n: "Avignone ed il Vaticano", f: "avignone.mp3" },
+            { t: "Mario Giordano", n: "Daviiid", f: "daviiid.mp3" },
+            { t: "Pino Scotto Parenzo", n: "acqua del cesso e...", f: "acqua_cesso.mp3" },
+            { t: "Matrella", n: "Giuseppe!", f: "giuseppe_matrella.mp3" },
+            { t: "Albano", n: "Debora!", f: "debora.mp3" },
+            { t: "varie Parenzo", n: "i gufi di Parenzo", f: "gufi.mp3" },
+            { t: "varie", n: "seeee", f: "seeee.mp3" },
+            { t: "Capezzone", n: "ciao ciao ciao", f: "ciao_ciao_ciao.mp3" },
+            { t: "Porro", n: "porca di quella puttana", f: "porca_putt.mp3" },
+            { t: "Lotito", n: "hai trovato 'sti benefattori", f: "benefattori.mp3" },
+            { t: "canzone", n: "jingle LA7", f: "Bumper_La7.mp3" },
+            { t: "varie", n: "c'è una pace, c'è un'armonia", f: "pace_armonia.mp3" },
+            { t: "varie", n: "sciacquone", f: "sciacquone.mp3" },
+            { t: "Spatalino", n: "disgraziato", f: "disgraziato.mp3" },
+            { t: "Mario Giordano", n: "liberiamo le case!", f: "liberiamo_le_case.mp3" },
+            { t: "Giuseppe Barbuto", n: "Azzurra Noemi Barbuto chiama Giuseppe", f: "Azzurra_Giuseppe.mp3" },
+            { t: "Cruciani", n: "hai la voce impastata", f: "impastata.mp3" },
+            { t: "canzone", n: "canto liturgico su San Gennaro", f: "san_gennaro.mp3" },
+            { t: "Annarita Briganti", n: "buonasera a tutt", f: "Buonasera a tutt.mp3" },
+            { t: "Cruciani", n: "tu sei pieno di canne", f: "pieno_di_canne.mp3" },
+            { t: "Spatalino", n: "fate una carica, travolgeteli", f: "fate_una_carica.mp3" },
+            { t: "Lacerenza", n: "spingere poveri!", f: "spingere_poveri.mp3" },
+            { t: "Joe Formaggio", n: "spero che un leon lo magna", f: "leon_lo_magna.mp3" },
+            { t: "Cruciani", n: "musica musica", f: "musica_musica.mp3" },
+            { t: "Giuseppe Parenzo Barbuto", n: "Giuseppeee, Parenzo imita la Barbuto", f: "giuseppeeee.mp3" },
+            { t: "Jonathan da Prato", n: "eeeee", f: "eeeee_jonathan.mp3" },
+            { t: "Cruciani", n: "un applauso!", f: "un_applauso.mp3" },
+            { t: "Jonathan da Prato", n: "porceddu", f: "porceddu.mp3" },
+            { t: "Cruciani", n: "giù giù Dipré", f: "giu_dipre.mp3" },
+            { t: "Wanna Marchi", n: "ooo lardosa!", f: "ooo_lardosa.mp3" },
+            { t: "varie Don James Organisti", n: "ma nooo", f: "ma_nooo.mp3" },
+            { t: "Trump Parenzo", n: "Mr Parenzo kissing...", f: "Trump_Parenzo.mp3" },
+            { t: "Trump Parenzo", n: "combatti tiger", f: "combatti_tiger.mp3" },
+            { t: "Mauro da Mantova", n: "eh eh (la mitica risata)", f: "eh_eh.mp3" },
+            { t: "Edward Luttwak", n: "è obbligatorio urlare?", f: "urlare_luttwak.mp3" },
+            { t: "Cruciani", n: "giù Roma", f: "giu_roma.mp3" },
+            { t: "Annarita Briganti", n: "ogni minuto ogni minuto", f: "ogni_minuto.mp3" },
+            { t: "Parenzo Mirkoro U", n: "Parenzo buscettone", f: "parenzo_buscettone.mp3" },
+            { t: "varie", n: "vai a fare in culo!", f: "vai_a_fare_in_culo.mp3" },
+            { t: "Elenoire Ferruzzi Anna da Roma", n: "ma tu chi cazzo sei", f: "chi_cazzo_sei.mp3" },
+            { t: "Elenoire Ferruzzi", n: "basta", f: "baaasta.mp3" },
+            { t: "varie Cruciani", n: "eri un buon Brunello", f: "buon_brunello.mp3" },
+            { t: "Cruciani", n: "magari magari", f: "magari.mp3" },
+            { t: "Rita De Crescenzo", n: "sto scioccata", f: "sto_scioccata.mp3" },
+            { t: "Parenzo", n: "francamente proverei il trans", f: "proverei_il_trans.mp3" },
+            { t: "Cruciani", n: "amici miei", f: "amici miei.mp3" },
+            { t: "Richard Benson", n: "possiamo cominciare la trasmissione", f: "cominciare_la_trasmissione.mp3" },
+            { t: "Salvini", n: "evviva Cruciani evviva La Zanzara", f: "evviva_cruciani_la_zanzara.mp3" },
+            { t: "canzone", n: "jingle La7 (secondo)", f: "sigla_la7.mp3" },
+            { t: "Elenoire Ferruzzi", n: "ma vai a fanculo", f: "ma_vai_a_fanc.mp3" },
+            { t: "Mirkoro", n: "uuuuu", f: "uuuu.mp3" },
+            { t: "Elenoire Ferruzzi", n: "uauaua", f: "uauaua.mp3" },
+            { t: "Parenzo", n: "bam bam bam", f: "bambambam.mp3" },
+            { t: "Cruciani", n: "bravo complimenti", f: "bravo_complimenti.mp3" },
+            { t: "varie", n: "oh calmatevi", f: "oh_calmatevi.mp3" },
+            { t: "Salvini", n: "amico mio", f: "amico_mio.mp3" },
+            { t: "Wanna Marchi", n: "tanto dai maghi andate tutti", f: "dai_maghi.mp3" },
+            { t: "varie", n: "bel messaggio", f: "bel_messaggio.mp3" },
+            { t: "Barisoni", n: "paga pantalone", f: "paga_pantalone.mp3" },
+            { t: "Parenzo", n: "caro Matteo", f: "matteo_vicino.mp3" },
+            { t: "Parenzo Cruciani", n: "Francia o Spagna purché se magna", f: "francia_o_spagna.mp3" },
+            { t: "Parenzo", n: "starnuto", f: "starnuto_parenzo.mp3" },
+            { t: "varie", n: "un pochettino di misto dai", f: "misto.mp3" },
+            { t: "Parenzo", n: "è radio Predappio", f: "radio_predappio.mp3" },
+            { t: "varie", n: "maionese maionese", f: "maionese.mp3" },
+            { t: "Porro", n: "ehilà", f: "ehila.mp3" },
+            { t: "Parenzo", n: "bam bam bam intonato", f: "bambambam_intonato.mp3" },
+        ];
+
+        function render() {
+            const grid = document.getElementById('audioGrid');
+            // Inverte l'ordine dell'elenco: l'ultimo nel codice diventa il primo nel sito
+            const visualList = [...audioList].reverse(); 
+    
+            grid.innerHTML = visualList.map(item => `
+                <div class="audio-card" onclick="play('${item.f}', '${item.n.replace(/'/g, "\\'")}')">
+                    <div class="tag">${item.t}</div>
+                    <div class="titolo">${item.n}</div>
+                </div>
+            `).join('');
+        }
+
+        function play(file, nome) {
+            const player = document.getElementById('mainPlayer');
+            const display = document.getElementById('track-display');
+    
+            player.src = GITHUB_URL + encodeURIComponent(file);
+    
+            // Scriviamo il nome e creiamo un tastino separato per la catenella
+            display.innerHTML = '🔊 ' + nome + ' <span style="cursor:pointer; margin-left:10px; font-size:20px;" onclick="event.stopPropagation(); condividiClip(\'' + nome.replace(/'/g, "\\'") + '\', \'' + file + '\')">🔗</span>';
+    
+            player.play();
+        }
+
+        function filterAudio() {
+            const val = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.getElementsByClassName('audio-card');
+            for (let i = 0; i < cards.length; i++) {
+                const text = cards[i].innerText.toLowerCase();
+                cards[i].classList.toggle('hidden', !text.includes(val));
+            }
+        }
+
+        window.onload = render;
+        // Registrazione del Service Worker per attivare l'installazione PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+        navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch", (event) => {});', {scope: './'})
+          .then(() => console.log("SW registrato"))
+          .catch(err => console.log("Errore SW", err));
+      });
+}
+    // Funzione per mostrare il messaggio solo su iPhone se non è già installata
+function showIosTip() {
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    if (isIos && !isStandalone) {
+        document.getElementById('iphone-tool-tip').style.display = 'block';
+    }
+}
+
+// Esegui il controllo al caricamento
+window.addEventListener('load', showIosTip);
+        
+        function toggleMenu() {
+  const menu = document.getElementById("side-menu");
+  if (menu.style.width === "250px") {
+    menu.style.width = "0";
+  } else {
+    menu.style.width = "250px";
+  }
+}
+
+// Funzione Condividi che avevamo accennato
+function condividiApp() {
+  if (navigator.share) {
+    navigator.share({
+      title: 'Voci da La Zanzara',
+      text: 'Ascolta le migliori perle della Zanzara!',
+      url: window.location.href
+    });
+  } else {
+    alert("Copia il link: " + window.location.href);
+  }
+}
+    function condividiClip(nome, file) {
+    const urlClip = GITHUB_URL + encodeURIComponent(file);
+
+    // Se il telefono supporta la condivisione nativa (Android/iOS)
+    if (navigator.share) {
+        navigator.share({
+            title: 'Clip da La Zanzara',
+            text: 'Ascolta questa clip: ' + nome,
+            url: urlClip
+        }).catch(console.error);
+    } else {
+        // Solo se sei su PC o browser vecchio copia negli appunti
+        navigator.clipboard.writeText(urlClip);
+        alert("Link copiato negli appunti!");
+    }
+}
+    </script>
+</body>
+</html>
