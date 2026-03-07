@@ -246,8 +246,9 @@
     </div>
 
     <h1 style="color: #1DB954; font-family: sans-serif; font-size: 28px; margin: 0 0 0 15px; font-weight: 700; text-transform: lowercase; white-space: nowrap;">
-    voci da La Zanzara 🦟
-</h1>
+    voci da La Zanzara 
+    <span id="zanzara-random" onclick="playRandomClip()" style="cursor: pointer; user-select: none; display: inline-block;">🦟</span>
+    </h1>
 </div>
 
 <div id="side-menu" class="side-menu">
@@ -808,6 +809,27 @@ function condividiApp() {
         navigator.clipboard.writeText(urlClip);
         alert("Link copiato negli appunti!");
     }
+        function playRandomClip() {
+    // 1. Reset della ricerca
+    const searchInput = document.getElementById('search-input');
+    if (searchInput && searchInput.value !== '') {
+        searchInput.value = '';
+        filterButtons(); // Questa è la funzione che hai già nel file
+    }
+
+    // 2. Trova tutti i pulsanti delle clip
+    const buttons = document.querySelectorAll('.audio-button');
+    
+    if (buttons.length > 0) {
+        // 3. Sceglie una clip a caso
+        const randomIndex = Math.floor(Math.random() * buttons.length);
+        const targetButton = buttons[randomIndex];
+
+        // 4. Va alla clip e la preme
+        targetButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetButton.click();
+    }
+}
 }
     </script>
 </body>
