@@ -38,17 +38,54 @@
         }
         #searchInput:focus { border-color: #1DB954; box-shadow: 0 0 10px rgba(255, 71, 87, 0.3); }
 
-        /* Colora la X di ricerca sui browser moderni (Chrome, Edge, Safari) */
         input[type="search"]::-webkit-search-cancel-button {
             -webkit-appearance: none;
             height: 1.2em;
             width: 1.2em;
-        /* Qui usiamo una maschera per colorarla del tuo verde */
         background-color: #1DB954; 
         -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E");
         mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E");
         cursor: pointer;
 }
+
+        /* Controlli Ordinamento */
+        .controls-bar {
+            max-width: 1200px; margin: 10px auto 20px;
+            display: flex; align-items: center; gap: 10px;
+            flex-wrap: wrap;
+        }
+        .controls-bar label { font-size: 14px; color: #b3b3b3; }
+        #sortSelect {
+            padding: 8px 14px; border-radius: 20px; border: 2px solid #2f3542;
+            font-size: 14px; background: #1e1e1e; color: white; outline: none;
+            cursor: pointer; transition: 0.3s;
+        }
+        #sortSelect:focus { border-color: #1DB954; }
+        #sortSelect option { background: #1e1e1e; color: white; }
+        .cat-count { font-size: 12px; color: #888; margin-left: 5px; }
+
+        /* Categorie */
+        .category-section { margin-bottom: 25px; }
+        .category-header {
+            background: #2f3542; border-radius: 12px; padding: 12px 18px;
+            cursor: pointer; transition: 0.2s; user-select: none;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px; border-left: 4px solid #ff4757;
+        }
+        .category-header:hover { background: #3e4452; }
+        .category-header .cat-name { font-size: 16px; font-weight: bold; color: #ff6b81; text-transform: uppercase; letter-spacing: 1px; }
+        .category-header .cat-meta { font-size: 13px; color: #888; }
+        .category-header .arrow { transition: transform 0.3s; font-size: 14px; color: #1DB954; }
+        .category-header.collapsed .arrow { transform: rotate(-90deg); }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px; transition: all 0.3s;
+        }
+        .category-grid.collapsed { display: none; }
+        .category-grid .audio-card { margin: 0; }
+        .category-duration { font-size: 11px; color: #666; margin-top: 4px; }
+        .loading-durations { font-size: 12px; color: #888; font-style: italic; }
 
         /* Griglia a Scacchi */
         .grid-container { 
@@ -276,7 +313,20 @@
         <input type="search" id="searchInput" placeholder="Cerca audio o personaggio..." oninput="filterAudio()">
     </div>
 
-    <div class="grid-container" id="audioGrid">
+    <div class="controls-bar">
+        <label for="sortSelect">Ordina:</label>
+        <select id="sortSelect" onchange="render()">
+            <option value="group">Raggruppa per categoria</option>
+            <option value="alpha-asc">Titolo A-Z</option>
+            <option value="alpha-desc">Titolo Z-A</option>
+            <option value="tag">Categoria alfabetico</option>
+            <option value="duration-asc">Durata ↑</option>
+            <option value="duration-desc">Durata ↓</option>
+        </select>
+        <span id="durationStatus" class="loading-durations"></span>
+    </div>
+
+    <div id="audioGrid">
         </div>
 
     <div id="player-fixed">
@@ -733,17 +783,169 @@
             { t: "regia Parenzo", n: "slurp regia del cazzo", f: "slurp_regia_del_cazzo.mp3" },
         ];
 
+        const durationCache = new Map();
+        let allDurationsLoaded = false;
+
+        function getSort() {
+            return document.getElementById('sortSelect').value;
+        }
+
+        function formatDuration(sec) {
+            if (sec == null) return '';
+            if (sec < 60) return `${sec.toFixed(1)}s`;
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${m}m ${s}s`;
+        }
+
+        function loadDuration(item, force) {
+            if (durationCache.has(item.f) && !force) return Promise.resolve(durationCache.get(item.f));
+            return new Promise((resolve) => {
+                const audio = new Audio();
+                audio.preload = 'metadata';
+                const url = GITHUB_URL + encodeURIComponent(item.f);
+                audio.src = url;
+                audio.addEventListener('loadedmetadata', () => {
+                    durationCache.set(item.f, audio.duration);
+                    resolve(audio.duration);
+                }, { once: true });
+                audio.addEventListener('error', () => {
+                    durationCache.set(item.f, null);
+                    resolve(null);
+                }, { once: true });
+            });
+        }
+
+        function loadAllDurations(list) {
+            if (allDurationsLoaded) return;
+            const status = document.getElementById('durationStatus');
+            status.textContent = 'Caricamento durate...';
+            let loaded = 0;
+            const total = list.length;
+            function loadNext(idx) {
+                if (idx >= total) {
+                    allDurationsLoaded = true;
+                    status.textContent = '';
+                    const sort = getSort();
+                    if (sort === 'duration-asc' || sort === 'duration-desc') render();
+                    return;
+                }
+                loadDuration(list[idx]).then(() => {
+                    loaded++;
+                    if (loaded % 100 === 0 || loaded === total) {
+                        const sort = getSort();
+                        if (sort === 'duration-asc' || sort === 'duration-desc') render();
+                        else status.textContent = `Caricamento durate: ${loaded}/${total}`;
+                    }
+                    loadNext(idx + 1);
+                });
+            }
+            setTimeout(() => loadNext(0), 500);
+        }
+
+        function groupByTag(list) {
+            const groups = {};
+            for (const item of list) {
+                if (!groups[item.t]) groups[item.t] = [];
+                groups[item.t].push(item);
+            }
+            const entries = Object.entries(groups);
+            entries.sort((a, b) => b[1].length - a[1].length || a[0].toLowerCase().localeCompare(b[0].toLowerCase()));
+            return entries.map(([tag, clips]) => ({ tag, clips }));
+        }
+
         function render() {
             const grid = document.getElementById('audioGrid');
-            // Inverte l'ordine dell'elenco: l'ultimo nel codice diventa il primo nel sito
-            const visualList = [...audioList].reverse(); 
-    
-            grid.innerHTML = visualList.map(item => `
+            const sort = getSort();
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+
+            const searchFiltered = searchVal
+                ? audioList.filter(item =>
+                    item.t.toLowerCase().includes(searchVal) ||
+                    item.n.toLowerCase().includes(searchVal)
+                  )
+                : audioList;
+
+            if (sort === 'group') {
+                renderGrouped(grid, searchFiltered);
+            } else {
+                renderFlat(grid, searchFiltered, sort);
+            }
+        }
+
+        function makeCardHtml(item) {
+            const dur = durationCache.get(item.f);
+            const durHtml = dur != null ? `<div class="category-duration">${formatDuration(dur)}</div>` : '';
+            return `
                 <div class="audio-card" onclick="play('${item.f}', '${item.n.replace(/'/g, "\\'")}')">
                     <div class="tag">${item.t}</div>
                     <div class="titolo">${item.n}</div>
+                    ${durHtml}
                 </div>
-            `).join('');
+            `;
+        }
+
+        function sortList(list, sort) {
+            const sorted = [...list];
+            switch (sort) {
+                case 'alpha-asc':
+                    sorted.sort((a, b) => a.n.toLowerCase().localeCompare(b.n.toLowerCase()));
+                    break;
+                case 'alpha-desc':
+                    sorted.sort((a, b) => b.n.toLowerCase().localeCompare(a.n.toLowerCase()));
+                    break;
+                case 'tag':
+                    sorted.sort((a, b) => a.t.toLowerCase().localeCompare(b.t.toLowerCase()) || a.n.toLowerCase().localeCompare(b.n.toLowerCase()));
+                    break;
+                case 'duration-asc':
+                case 'duration-desc': {
+                    loadAllDurations(audioList);
+                    sorted.sort((a, b) => {
+                        const da = durationCache.get(a.f) ?? 999;
+                        const db = durationCache.get(b.f) ?? 999;
+                        return sort === 'duration-asc' ? da - db : db - da;
+                    });
+                    break;
+                }
+            }
+            return sorted;
+        }
+
+        function renderGrouped(grid, list) {
+            const groups = groupByTag(list);
+            let html = '';
+            for (const group of groups) {
+                const clipCount = group.clips.length;
+                html += `
+                    <div class="category-section">
+                        <div class="category-header" onclick="toggleCategory(this)">
+                            <span><span class="cat-name">${group.tag}</span> <span class="cat-count">(${clipCount})</span></span>
+                            <span class="cat-meta">${clipCount} clip <span class="arrow">▼</span></span>
+                        </div>
+                        <div class="category-grid">
+                            ${group.clips.map(makeCardHtml).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        function renderFlat(grid, list, sort) {
+            const sorted = sortList(list, sort);
+            grid.innerHTML = `<div class="grid-container" id="audioGridInner">
+                ${sorted.map(makeCardHtml).join('')}
+            </div>`;
+        }
+
+        function toggleCategory(header) {
+            header.classList.toggle('collapsed');
+            const grid = header.nextElementSibling;
+            if (grid) grid.classList.toggle('collapsed');
+        }
+
+        function filterAudio() {
+            render();
         }
 
         function play(file, nome) {
@@ -767,7 +969,10 @@
             }
         }
 
-        window.onload = render;
+        window.onload = function() {
+            render();
+            loadAllDurations(audioList);
+        };
         // Registrazione del Service Worker per attivare l'installazione PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
