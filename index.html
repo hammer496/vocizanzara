@@ -16,6 +16,8 @@
     <meta property="og:url" content="https://hammer496.github.io/vocizanzara/">
     <meta property="og:type" content="website">
 
+    <link rel="canonical" href="https://hammer496.github.io/vocizanzara/">
+    
     <script>
         if (window.location.pathname.endsWith('/index.html')) {
           window.location.replace(
@@ -332,6 +334,18 @@
 <meta name="apple-mobile-web-app-title" content="Zanzara">
 <link rel="apple-touch-icon" href="iconav.png">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="b02cc12b-34fe-4c10-9f45-3301e00fea55"></script>
+    <script>
+        window.addEventListener('load', function () {
+          const isPwa =
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.navigator.standalone === true;
+
+          if (isPwa && window.umami) {
+            umami.track('pwa-open');
+          }
+        });
+        </script>
+    
 </head>
 <body>
     <div id="iphone-tool-tip">
