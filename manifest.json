@@ -2,7 +2,7 @@
   "name": "voci da La Zanzara",
   "short_name": "voci Zanzara",
   "description": "Archivio sonoro delle perle de La Zanzara",
-  "start_url": "index.html",
+  "start_url": "./"
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#1DB954",
